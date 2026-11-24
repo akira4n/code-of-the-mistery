@@ -30,24 +30,34 @@ Empat kelemahan utama pada prototipe awal (`SpriteViewport.kt` + `AppSeedData.kt
    - Pada kode `starterCode`, bagian kunci **sengaja dikosongkan** dengan placeholder interaktif (mis. `nama = ____`, `if energy ____ 50:`, `return ____`).
    - Pemain harus mengganti token `____` (baik mengetik langsung maupun mengetuk **Code Chips** rekomendasi/pengecoh) berbekal **Clue** yang ditemukan pada Act 1–2.
    - Jika masih ada token `____` yang belum diisi, tombol **`Jalankan`** menolak dengan peringatan logis (`SyntaxError: slot ____ belum dilengkapi!`) dan tidak otomatis lolos.
-3. **Chapter Terlalu Singkat → *Struktur 5 Act per Chapter (5–8 Menit)*:**
+3. **Chapter Terlalu Singkat & Kurang Konteks Materi → *Struktur 5 Act + Micro-Lesson Sebelum Soal + Tombol Bantuan `"?"`*:**
+   - Setiap tantangan **wajib didahului narasi penjelasan materi oleh ARIA/karakter** tepat di dalam cerita (*Micro-Lesson → Challenge*), sehingga pemain tidak langsung dilempar ke soal tanpa paham konsepnya.
+   - Di setiap panel soal yang sedang dikerjakan (*Bug Hunt*, *Predict Output*, *Code Chips*, *Quiz*, dan *`MAIN.PY`*), tersedia **logo/tombol bantuan `"?"`** di pojok kanan atas kartu soal untuk membuka **Popup Referensi Materi** kapan saja secara gratis (berbeda dari tombol *Hint* yang memberi petunjuk jawaban).
    - Setiap chapter (Ch. 1–7) mengikuti pacing 5 Act:
-     - **Act 1 — Anomaly Opening & Lore:** Pengenalan distrik baru, dialog dinamis Hero + **ARIA**, dan pembukaan **Clue Utama**.
+     - **Act 1 — Anomaly Opening & Micro-Lesson 1:** Pengenalan distrik baru, dialog dinamis Hero + **ARIA** yang mengajarkan konsep dasar chapter, dan pembukaan **Clue Utama**.
      - **Act 2 — Branching Encounter & Clue Rahasia:** Pertemuan dengan **Vex ("Null")**, NPC, atau sistem keamanan dengan **Pilihan Bercabang** (*Patch* vs *Purge* / *Analisis* vs *Terobos*) yang memengaruhi bonus Clue, HP, atau kelemahan Boss.
-     - **Act 3 — Skirmish Mini-Puzzle:** Pertarungan awal melawan *minion* menggunakan **Bug Hunt** (ketuk baris kode yang error) atau **Susun Blok Kode / Predict Output**.
-     - **Act 4 — Multi-Phase Boss Battle:** Pertarungan puncak dengan **Enemy HP Bar** terbagi 2–3 fase (Fase 1: Kuis/Bug Hunt membuka *Shield*; Fase 2: Live Coding `MAIN.PY` *Fill-in-the-Blank* untuk *Finisher*).
+     - **Act 3 — Pre-Battle Micro-Lesson & Skirmish Mini-Puzzle:** ARIA memberi penjelasan praktis singkat (*mis. aturan operator atau jebakan syntax umum*) tepat sebelum pertarungan *minion* (**Bug Hunt** & **Predict Output / Code Chips**).
+     - **Act 4 — Boss Briefing & Multi-Phase Boss Battle:** Pengajaran konsep inti Boss oleh ARIA sebelum pertempuran puncak (**Enemy HP Bar** terbagi 2 fase: Fase 1 membuka *Shield*; Fase 2 Live Coding `MAIN.PY` *Fill-in-the-Blank* untuk *Finisher*).
      - **Act 5 — Loot Box, Resolution & Cliffhanger:** Klaim peti **Loot Box**, ringkasan alignment/XP, dan transisi cerita ke chapter berikutnya.
 
 ---
 
-## 3. Empat Variasi Tantangan Interaktif
+## 3. Empat Variasi Tantangan Interaktif & Tombol Bantuan `"?"`
 
 ```mermaid
 flowchart LR
-    A["1. Branching Choice\n(Narasi & Alignment)"] --> B["2. Bug Hunt\n(Tap Baris Error)"]
-    B --> C["3. Code Chips / Predict Output\n(Susun & Analisis Cepat)"]
-    C --> D["4. Boss Battle MAIN.PY\n(Fill-in-the-Blank + Evaluator)"]
+    L["0. Narasi Micro-Lesson\n(ARIA Jelaskan Materi)"] --> A["1. Branching Choice\n(Narasi & Alignment)"]
+    A --> B["2. Bug Hunt\n(Tap Baris Error + Ikon ?)"]
+    B --> C["3. Code Chips / Predict Output\n(Susun & Analisis + Ikon ?)"]
+    C --> D["4. Boss Battle MAIN.PY\n(Fill-in-the-Blank + Ikon ?)"]
 ```
+
+### Perbedaan Tombol Bantuan `"?"` vs Tombol `Hint` (`Laptop`)
+| Fitur | Logo Bantuan **`"?"`** *(Help Materi)* | Tombol **`Hint`** *(Ikon Lampu / Laptop)* |
+| :--- | :--- | :--- |
+| **Lokasi** | Pojok kanan atas header **semua soal** (*Bug Hunt*, *Predict Output*, *Code Chips*, *Quiz*, dan *`MAIN.PY`*) | Header panel **`MAIN.PY`** (aktif saat `Laptop` terpasang) |
+| **Isi Popup/Modal** | Ringkasan **teori & contoh sintaks** materi yang sedang diuji pada soal tersebut | Petunjuk **spesifik baris/nilai** apa yang harus diisi pada slot `____` soal ini |
+| **Batasan** | Gratis, tanpa batas klik, tidak mengurangi HP/XP | Opsional sebagai fitur pasif item `Laptop` |
 
 | Mode Tantangan | Cara Main di Layar HP | Feedback di Viewport |
 | :--- | :--- | :--- |

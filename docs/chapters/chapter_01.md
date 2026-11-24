@@ -30,6 +30,7 @@
 > - **Boolean (`bool`)**: logika `True` atau `False` (huruf awal kapital!)
 
 ### Tantangan 1.1 — *Fill-in-the-Blank `MAIN.PY`*: Inisialisasi Identitas
+- **Bantuan Materi (`?`):** *"Variabel String wajib diapit tanda kutip (`"nama"`), sedangkan Integer ditulis sebagai angka murni tanpa kutip (`6`). Baris berawalan `#` adalah komentar dan tidak dijalankan."*
 - **Instruksi:** Lengkapi bagian `____` agar variabel `nama` bertipe **String**, `HP` bertipe **Integer `6`**, dan cetak keduanya ke terminal.
 ```python
 # Inisialisasi identitas The Mystery Coder
@@ -64,13 +65,16 @@ print("HP:", HP)
 
 ---
 
-## Act 3 — Skirmish Mini-Puzzle: *Syntax Slime Attack*
+## Act 3 — Pre-Battle Micro-Lesson & Skirmish: *Syntax Slime Attack*
 
 ### Scene 3.1: Serangan Anomali Pertama *(Enemy: `Syntax Slime`, 60 HP)*
 - *[Animasi: Gumpalan lendir pixel ungu merangkak keluar dari selokan berkedip.]*
-- **ARIA:** *"Waspada! Itu **Syntax Slime** — ia lahir dari baris variabel yang salah ketik! Gunakan teknik **Bug Hunt** untuk menebas baris yang salah!"*
+- **ARIA:** *"Waspada! Itu **Syntax Slime** — ia lahir dari baris variabel yang salah ketik! Sebelum menebasnya, ingat dua aturan dasar Python ini:"*
+- **ARIA *(Micro-Lesson)*:** *"Pertama, nilai Boolean di Python **harus diawali huruf kapital**: `True` atau `False` (bukan `true`/`false`). Kedua, dalam hitungan matematika, perkalian (`*`) dan pembagian (`/`) **selalu dikerjakan lebih dulu** daripada penjumlahan (`+`) dan pengurangan (`-`)."*
+- **PROTAGONIS:** *"Oke, jadi huruf kapital Boolean penting, dan `*` lebih kuat dari `+`! Aku siap!"*
 
 ### Tantangan 3.1 — *Bug Hunt (Tap the Error Line)* *(Damage ke Slime: `35 HP`)*
+- **Bantuan Materi (`?`):** *"Di Python bersifat case-sensitive. Boolean hanya valid jika ditulis `True` atau `False` dengan huruf awal kapital."*
 ```python
 1 | # Status awal pertahanan
 2 | shield_level = 2
@@ -82,6 +86,7 @@ print("HP:", HP)
 - **Animasi:** Jika benar, Hero *lunge* ke depan dengan `SKILL_1` (`-35 Enemy HP` + partikel ungu). Jika salah, Slime melompat (`-1 Player HP` / ditahan `Firewall Shield`).
 
 ### Tantangan 3.2 — *Predict the Output* *(Finisher Slime: `25 HP`)*
+- **Bantuan Materi (`?`):** *"Urutan Prioritas Operator (PEMDAS): perkalian (`*`) selalu dihitung sebelum penjumlahan (`+`), kecuali ada tanda kurung `(...)`."*
 - **Soal:** Jika dijalankan kode berikut, apa yang muncul di terminal `OUTPUT`?
 ```python
 x = 10
@@ -99,15 +104,18 @@ print(x + y * 2)
 ### Scene 4.1: Kebangkitan Penjaga Gerbang *(Enemy: `Stone Golem`, 120 HP)*
 - *[Screen Shake! Batu trotoar terangkat membentuk Stone Golem raksasa.]*
 - **SYSTEM ALERT:** `<MAIN SCENARIO #1: DECRYPTION BATTLE> Kategori: MAIN | Musuh: Stone Golem | Kondisi Menang: Turunkan Perisai Golem!`
-- **ARIA:** *"Golem itu dilindungi perisai energi (`shields_active = True`). Patahkan perisainya dulu, lalu hantam intinya!"*
+- **ARIA *(Boss Briefing / Micro-Lesson)*:** *"Golem itu dilindungi perisai energi (`shields_active = True`). Untuk mengambil keputusan di Python, kita pakai pernyataan **`if kondisi:`** (akhiri dengan titik dua `:`, dan beri spasi menjorok/indentasi untuk aksi di dalamnya)."*
+- **ARIA:** *"Untuk membandingkan apakah dua nilai sama, gunakan **`==`** (dua tanda sama dengan), sedangkan untuk mengecek 'lebih besar dari', gunakan **`>`**!"*
 
 ### Fase 1 Boss (`120 → 60 HP`) — *Code Chips*: Analisis Tipe Data & Kondisi
+- **Bantuan Materi (`?`):** *"Operator perbandingan: `>` (lebih dari), `<` (kurang dari), `==` (sama dengan), `!=` (tidak sama). Operator `and` bernilai True jika kedua kondisi benar."*
 - **Soal:** Lengkapi kode kondisi berikut untuk mengecek apakah energi terminal cukup untuk menembus armor Golem (`60 HP` damage):
   `if energy ____ 50 and shields_active ____ True:`
 - **Pilihan Chips:** `>` & `==` *(Benar)* | `<` & `=` | `>=` & `!=`
 - **Visual:** Perisai biru di sekitar Golem retak (`Status: EXPOSED`)!
 
 ### Fase 2 Boss (`60 → 0 HP`) — *Fill-in-the-Blank `MAIN.PY`*: Decryption Finisher
+- **Bantuan Materi (`?`):** *"Struktur kondisi `if`:\n```python\nif nilai > 50:\n    variabel_baru = False\n```\nPastikan indentasi 4 spasi di bawah `if`."*
 - **Instruksi:** Lengkapi bagian `____` agar jika `energy > 50`, nilai `shields_active` berubah menjadi `False` dan `total_power` menjadi `100` (atau `150` jika pemain membuka *Secret Clue* di Act 2!).
 ```python
 # Player input values

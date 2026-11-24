@@ -13,6 +13,7 @@
 ### Scene 1.1: Lorong Kubus Memori *(Background: `bg_ch4_memory_vault`)*
 - **PROTAGONIS:** *"Semua bangunan yang menghilang di Chapter 1... ternyata tidak hancur! Semuanya mengambang sebagai kubus memori di tempat ini?"*
 - **ARIA:** *"Benar! Garbage Collector mengira mereka sampah memori dan membuangnya ke **Memory Vault**. Tapi indeksnya berantakan — satu salah ambil index (`IndexError`), kubus bisa meledak!"*
+- **ARIA *(Micro-Lesson)*:** *"Di Python, **List** memakai kurung siku `[a, b, c]` dan **indeks selalu dimulai dari `0`**! Jadi list isi 3 item hanya punya indeks `0, 1, 2`. Sedangkan **Dictionary** memakai kurung kurawal `{"kunci": nilai}` untuk menyimpan data berpasangan, dan nilainya diakses lewat nama kuncinya!"*
 
 ### Clue #4 Terbuka (`clue_ch4_structures`)
 > **List & Dictionary di Python:**  
@@ -36,9 +37,13 @@
 
 ---
 
-## Act 3 — Skirmish Mini-Puzzle: *Data Mimic Ambush*
+## Act 3 — Pre-Battle Micro-Lesson & Skirmish: *Data Mimic Ambush*
+
+### Scene 3.1: Menyaring Kubus Palsu
+- **ARIA *(Micro-Lesson)*:** *"Awas jebakan Data Mimic! Ingat: jumlah item (`len`) misalnya `3`, berarti indeks maksimal yang sah adalah `len - 1` (yaitu `2`). Lalu untuk mengubah nilai di Dictionary, cukup lakukan assignment seperti `dict["key"] = nilai_baru`."*
 
 ### Tantangan 3.1 — *Bug Hunt (IndexError & KeyError)* *(50 HP Damage)*
+- **Bantuan Materi (`?`):** *"Indeks List di Python dimulai dari `0`. List dengan 3 elemen (`["alpha", "beta", "gamma"]`) hanya memiliki indeks `0`, `1`, dan `2`."*
 ```python
 1 | keys = ["alpha", "beta", "gamma"]
 2 | print(keys[0])
@@ -48,6 +53,7 @@
 - **Baris Target:** **Baris 3** (`keys` hanya punya indeks `0, 1, 2`; `keys[3]` memicu `IndexError`!).
 
 ### Tantangan 3.2 — *Predict the Output (Dictionary)* *(50 HP Damage)*
+- **Bantuan Materi (`?`):** *"Nilai Dictionary bersifat mutable (bisa diubah). `vault["locked"] = False` memperbarui nilai kunci `"locked"` dari `True` menjadi `False`."*
 ```python
 vault = {"sector": 4, "locked": True}
 vault["locked"] = False
@@ -62,14 +68,16 @@ print(vault["sector"], vault["locked"])
 
 ### Scene 4.1: Hantu Memori yang Berubah Bentuk *(Enemy: `Cache Phantom`, 220 HP)*
 - *[Animasi: Bayangan bercahaya cyan-merah menyusun ulang kubus memori menjadi tubuh raksasa tanpa wajah.]*
-- **ARIA:** *"Cache Phantom menyembunyikan inti aslinya di dalam List target dan Dictionary kunci! Ekstrak elemen yang benar dan jumlahkan total kekuatannya!"*
+- **ARIA *(Boss Briefing)*:** *"Cache Phantom menyembunyikan inti aslinya di dalam List target dan Dictionary kunci! Kita bisa menggabungkan `for elemen in nama_list:` untuk mengiterasi seluruh isi list satu per satu tanpa repot memakai `range()`, lalu mengambil kunci Dictionary dengan `dict["nama_key"]`!"*
 
 ### Fase 1 Boss (`220 → 110 HP`) — *Code Chips*: Akses Dictionary & List
+- **Bantuan Materi (`?`):** *"Jika `meta["weak"]` bernilai `2`, maka `cores[meta["weak"]]` sama dengan `cores[2]` (elemen ketiga)."*
 - **Soal:** Diketahui `cores = [20, 45, 90]` dan `meta = {"weak": 2}`. Bagaimana mengambil nilai `90` menggunakan `meta["weak"]`?
   `target = cores[____]`
 - **Pilihan Chips:** `meta["weak"]` *(Benar)* | `meta[2]` | `"weak"` | `3`
 
 ### Fase 2 Boss (`110 → 0 HP`) — *Fill-in-the-Blank `MAIN.PY`*: Memory Extraction
+- **Bantuan Materi (`?`):** *"`for val in nama_list:` mengambil setiap angka dari list ke dalam `val`. Akses dictionary selalu menggunakan kunci string di dalam kurung siku: `key_data["power"]`."*
 - **Instruksi:** Lengkapi perulangan untuk menjumlahkan seluruh energi memori dalam list `nodes` serta mengakses nilai `"power"` pada dictionary `key_data`.
 ```python
 nodes = [30, 40, 50]

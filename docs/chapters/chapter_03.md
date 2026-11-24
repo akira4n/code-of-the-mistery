@@ -12,7 +12,8 @@
 
 ### Scene 1.1: Menara yang Berulang *(Background: `bg_ch3_clockwork_spire`)*
 - **PROTAGONIS:** *"Tunggu... Bukankah lampu neon di tangga ini baru saja berkedip dengan pola yang persis sama sepuluh detik lalu?"*
-- **ARIA:** *"Kita masuk ke **While True Zone**! Seluruh menara ini terjebak dalam `while` loop tanpa kondisi berhenti. Jika kita tidak menyisipkan `break` atau batas iterasi, energi kita akan terkuras habis!"*
+- **ARIA:** *"Kita masuk ke **While True Zone**! Seluruh menara ini terjebak dalam `while` loop tanpa kondisi berhenti."*
+- **ARIA *(Micro-Lesson)*:** *"Untuk mengulang aksi berkali-kali di Python, kita punya dua senjata: **`for i in range(n):`** (jumlah ulangan sudah pasti) dan **`while kondisi:`** (terus mengulang selama kondisi benar). Di dalam `while`, nilai penghitung harus diubah mendekati batas berhenti supaya tidak menjadi **Infinite Loop**!"*
 
 ### Clue #3 Terbuka (`clue_ch3_loop`)
 > **Perulangan `for` & `while` di Python:**  
@@ -35,9 +36,13 @@
 
 ---
 
-## Act 3 — Skirmish Mini-Puzzle: *Chrono Drone Squadron*
+## Act 3 — Pre-Battle Micro-Lesson & Skirmish: *Chrono Drone Squadron*
+
+### Scene 3.1: Pengawal Menara Waktu
+- **ARIA *(Micro-Lesson)*:** *"Hati-hati menghadapi Chrono Drone! Ingat dua hal ini sebelum menyerang: Pertama, pada `while count > 0:`, kita harus **mengurangi** `count` (`count -= 1`), bukan menambahkannya! Kedua, `range(1, 4)` menghasilkan angka `1, 2, 3` — angka `4` tidak ikut!"*
 
 ### Tantangan 3.1 — *Bug Hunt (Infinite Loop Trap)* *(45 HP Damage)*
+- **Bantuan Materi (`?`):** *"Dalam `while`, kondisi berhenti harus bisa tercapai. Jika syaratnya `count > 0` dan awalnya `count = 3`, maka `count` harus dikurangi (`-=`), bukan ditambah (`+=`)."*
 ```python
 1 | count = 3
 2 | while count > 0:
@@ -48,6 +53,7 @@
 - **Baris Target:** **Baris 4** (`count += 1` membuat `count` terus membesar sehingga `count > 0` selalu True → **Infinite Loop**! Seharusnya `count -= 1`).
 
 ### Tantangan 3.2 — *Predict the Output* *(45 HP Damage)*
+- **Bantuan Materi (`?`):** *"`range(start, stop)` berhenti sebelum `stop`. Jadi `range(1, 4)` mengulang nilai `i` = `1`, `2`, `3`. Operator `+=` berarti `total = total + nilai`."*
 ```python
 total = 0
 for i in range(1, 4):
@@ -64,14 +70,16 @@ print(total)
 ### Scene 4.1: Penjaga Inti Menara *(Enemy: `Loop Titan Golem`, 200 HP)*
 - *[Screen Shake! Golem raksasa dengan cincin jam berputar di punggungnya menghalangi tangga menuju puncak.]*
 - **LOOP TITAN:** `"0x001... EXECUTING INFINITE_SMASH()... 0x002... EXECUTING INFINITE_SMASH()..."`
-- **ARIA:** *"Satu serangan biasa akan langsung diregenerasi oleh loop-nya! Kamu harus merangkai serangan kombo berulang dalam 1 eksekusi `for` loop!"*
+- **ARIA *(Boss Briefing)*:** *"Satu serangan biasa akan langsung diregenerasi oleh loop-nya! Gunakan **`for i in range(jumlah):`** dan operator akumulator **`total_power += ...`** untuk menumpuk damage di setiap putaran loop!"*
 
 ### Fase 1 Boss (`200 → 100 HP`) — *Code Chips*: Pemahaman `range()`
+- **Bantuan Materi (`?`):** *"`range(n)` mengulang blok kode sebanyak tepat `n` kali (indeks `0` sampai `n-1`)."*
 - **Soal:** Lengkapi kode untuk menembakkan tepat **4 tembakan laser (`25` damage per tembakan)** sehingga total damage mencapai `100`:
   `for shot in range(____): total += 25`
 - **Pilihan Chips:** `4` *(Benar)* | `3` | `5` | `1, 4`
 
 ### Fase 2 Boss (`100 → 0 HP`) — *Fill-in-the-Blank `MAIN.PY`*: Loop Breaker Combo
+- **Bantuan Materi (`?`):** *"Format loop pengumpul nilai:\n```python\ntotal = 0\nfor i in range(3):\n    total += nilai\n```"*
 - **Instruksi:** Lengkapi fungsi serangan dan perulangan `for` agar `total_power` mengumpulkan `150` damage tepat dalam `3` iterasi.
 ```python
 strike = 25

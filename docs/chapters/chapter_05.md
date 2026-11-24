@@ -12,7 +12,8 @@
 
 ### Scene 1.1: Lift Menuju Pemancar Utama *(Background: `bg_ch5_relay_tower`)*
 - **PROTAGONIS:** *"Petir di atas menara ini bukan listrik biasa... Itu aliran `UnhandledException`!"*
-- **ARIA:** *"Vex mencoba menyiarkan skrip penghapus ke seluruh distrik lewat pemancar menara! Jika kita tidak membungkus modul kita dengan **Fungsi (`def`)** yang rapi dan **`try/except`** untuk menahan error dadakan, sinyal serangannya akan mematahkan terminal kita."*
+- **ARIA:** *"Vex mencoba menyiarkan skrip penghapus ke seluruh distrik lewat pemancar menara!"*
+- **ARIA *(Micro-Lesson)*:** *"Agar kode kita rapi dan tidak crash diterjang petir anomali, kita gunakan **Fungsi (`def`)** dan **Error Handling (`try / except`)**. Fungsi selalu memakai **`return nilai`** kalau hasilnya mau dihitung lagi di luar fungsi—bukan `print()`! Dan blok `try:` menjaga program agar saat error terjadi (mis. dibagi 0), alurnya langsung loncat aman ke `except:`."*
 
 ### Clue #5 Terbuka (`clue_ch5_functions`)
 > **Fungsi (`def`) & Error Handling (`try / except`):**  
@@ -36,9 +37,13 @@
 
 ---
 
-## Act 3 — Skirmish Mini-Puzzle: *Signal Jammer Barrier*
+## Act 3 — Pre-Battle Micro-Lesson & Skirmish: *Signal Jammer Barrier*
+
+### Scene 3.1: Menghadapi Penghalang Sinyal
+- **ARIA *(Micro-Lesson)*:** *"Perhatikan perbedaan **`print()`** dan **`return`**! `print()` hanya menampilkan teks ke layar, sedangkan fungsi tanpa `return` otomatis mengembalikan `None` (kosong), sehingga tidak bisa ditambah `+ 10`! Lalu pada `try/except`, begitu baris `try` error, baris berikutnya di dalam `try` dilewati dan Python langsung menjalankan blok `except:`."*
 
 ### Tantangan 3.1 — *Bug Hunt (Missing `return` in Function)* *(50 HP Damage)*
+- **Bantuan Materi (`?`):** *"Jika hasil pemanggilan fungsi akan dipakai dalam operasi matematika (`boost_signal(30) + 10`), fungsi wajib memiliki `return hasil`."*
 ```python
 1 | def boost_signal(power):
 2 |     result = power * 2
@@ -48,6 +53,7 @@
 - **Baris Target:** **Baris 3 / Akhir Fungsi** (fungsi `boost_signal` lupa mengembalikan nilai dengan `return result`, sehingga menghasilkan `None` dan menyebabkan error saat dijumlahkan `+ 10`!).
 
 ### Tantangan 3.2 — *Predict the Output (`try/except`)* *(50 HP Damage)*
+- **Bantuan Materi (`?`):** *"Pembagian dengan nol (`100 / 0`) menimbulkan `ZeroDivisionError`. Karena berada di dalam `try:`, error ditangkap oleh `except:` tanpa membuat program crash."*
 ```python
 try:
     dmg = 100 / 0
@@ -65,13 +71,16 @@ except:
 ### Scene 4.1: Coder vs Coder *(Enemy: `Rival Vex`, 250 HP)*
 - *[Animasi: Vex mengaktifkan gauntlet merahnya; hujan turun di antara percikan kode ungu dan crimson!]*
 - **VEX:** *"Tunjukkan kalau fungsi `MAIN.PY`-mu layak menghentikan milikku!"*
+- **ARIA *(Boss Briefing)*:** *"Kirimkan dua parameter ke fungsi `def counter_attack(energy, bonus):`, kembalikan penjumlahannya dengan `return`, lalu panggil dua kali di dalam blok `try:`!"*
 
 ### Fase 1 Boss (`250 → 125 HP`) — *Code Chips*: Modular Scope & Return
+- **Bantuan Materi (`?`):** *"Kata kunci `return` mengirim nilai hasil perhitungan fungsi kembali ke pemanggilnya."*
 - **Soal:** Lengkapi fungsi agar menerima `base` dan `multiplier`, lalu mengembalikan hasil perkalian keduanya:
   `def strike(base, multiplier): ____ base * multiplier`
 - **Pilihan Chips:** `return` *(Benar)* | `print` | `break` | `def`
 
 ### Fase 2 Boss (`125 → 0 HP`) — *Fill-in-the-Blank `MAIN.PY`*: Counter-Module Protocol
+- **Bantuan Materi (`?`):** *"Struktur fungsi modular:\n```python\ndef tambah(a, b):\n    return a + b\n```\n`counter_attack(50, 30)` menghasilkan `80`, sehingga `hit_1 + hit_2 = 160`."*
 - **Instruksi:** Buat fungsi `counter_attack(energy, bonus)` yang mengembalikan `energy + bonus`, bungkus pemanggilan berisiko dalam `try/except`, dan hasilkan `final_dmg = 160`.
 ```python
 def counter_attack(energy, bonus):

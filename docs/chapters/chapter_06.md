@@ -12,7 +12,8 @@
 
 ### Scene 1.1: Dunia Wireframe Putih-Ungu *(Background: `bg_ch6_blueprint_citadel`)*
 - **PROTAGONIS:** *"Semua pohon, bangunan, bahkan perisai di tempat ini terlihat seperti sketsa 3D transparan..."*
-- **ARIA:** *"Selamat datang di **The Blueprint Citadel**! Di sinilah **Class** — cetak biru dari segala **Object** di dunia ini — didefinisikan! Untuk mengalahkan penjaganya, kamu harus memahami bagaimana `class` menciptakan objek nyata!"*
+- **ARIA:** *"Selamat datang di **The Blueprint Citadel**! Di sinilah **Class** — cetak biru dari segala **Object** di dunia ini — didefinisikan!"*
+- **ARIA *(Micro-Lesson)*:** *"Bayangkan `class` itu seperti cetakan kue, dan `object` adalah kuenya! Di dalam `class`, fungsi khusus **`def __init__(self, ...):`** otomatis berjalan saat objek dibuat untuk mengisi data awal ke **`self.atribut`**. Dan setiap method (fungsi di dalam class) **wajib memiliki `self` sebagai parameter pertamanya** agar tahu objek mana yang sedang dipakai!"*
 
 ### Clue #6 Terbuka (`clue_ch6_oop`)
 > **Object-Oriented Programming (OOP) Python:**  
@@ -39,9 +40,13 @@
 
 ---
 
-## Act 3 — Skirmish Mini-Puzzle: *Blueprint Sentinel*
+## Act 3 — Pre-Battle Micro-Lesson & Skirmish: *Blueprint Sentinel*
+
+### Scene 3.1: Menghadapi Penjaga Cetak Biru
+- **ARIA *(Micro-Lesson)*:** *"Periksa method di dalam `class`! Kalau seseorang menulis `def roar():` tanpa `self` di dalam `class Sentinel:`, Python akan melempar `TypeError` saat `sentinel.roar()` dipanggil karena `self` otomatis dikirim oleh objek!"*
 
 ### Tantangan 3.1 — *Bug Hunt (Missing `self` Parameter)* *(55 HP Damage)*
+- **Bantuan Materi (`?`):** *"Semua method instance di dalam `class` Python wajib menuliskan `self` sebagai parameter pertama, contoh: `def roar(self):`."*
 ```python
 1 | class Sentinel:
 2 |     def __init__(self, hp):
@@ -52,6 +57,7 @@
 - **Baris Target:** **Baris 4** (method di dalam class Python wajib menerima parameter pertama `self`: `def roar(self):`).
 
 ### Tantangan 3.2 — *Predict the Output (Instance & Method)* *(55 HP Damage)*
+- **Bantuan Materi (`?`):** *"`s = Shield(50)` mengisi `self.armor = 50`. Saat `s.boost()` dipanggil, ia mengembalikan `50 + 20 = 70`."*
 ```python
 class Shield:
     def __init__(self, armor):
@@ -71,14 +77,16 @@ print(s.boost())
 
 ### Scene 4.1: Duel Blueprint *(Enemy: `Corrupted Architect`, 280 HP)*
 - **CORRUPTED ARCHITECT:** `"INSTANTIATING_METEOR()... OVERRIDE_REALITY()..."`
-- **ARIA:** *"Untuk memurnikan class Arka, ciptakan objek **`Purifier`** yang mewarisi kekuatanmu dan panggil method `execute()`!"*
+- **ARIA *(Boss Briefing)*:** *"Untuk memurnikan class Dr. Arka, ciptakan objek nyata dari `class Purifier` menggunakan `nama_objek = Purifier(150)`, lalu panggil method miliknya dengan tanda titik: `nama_objek.purify()`!"*
 
 ### Fase 1 Boss (`280 → 140 HP`) — *Code Chips*: Konstruktor `__init__`
+- **Bantuan Materi (`?`):** *"Konstruktor class di Python bernama `__init__` (dua garis bawah di kiri dan kanan)."*
 - **Soal:** Lengkapi konstruktor agar menyimpan atribut `power` ke dalam instance objek:
   `def ____(self, power): self.power = power`
 - **Pilihan Chips:** `__init__` *(Benar)* | `init` | `__main__` | `class`
 
 ### Fase 2 Boss (`140 → 0 HP`) — *Fill-in-the-Blank `MAIN.PY`*: Object Instantiation
+- **Bantuan Materi (`?`):** *"Pola membuat & memakai Object:\n```python\nobj = NamaClass(nilai)\nhasil = obj.nama_method()\n```"*
 - **Instruksi:** Lengkapi class `Purifier`, instansiasi objeknya dengan `power = 150`, dan panggil method `purify()` untuk membebaskan Dr. Arka!
 ```python
 class Purifier:

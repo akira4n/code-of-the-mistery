@@ -171,8 +171,8 @@ com.example.codeofthemistery/
 ### `FR-06` — Sistem Battle, HUD HP `6/6` & Efek Equipment
 - Setiap sesi chapter dimulai dengan `currentHp = 6`, `maxHp = 6`.
 - **Tipe Tantangan:**
-  1. **Quiz MCQ:** 4 opsi pilihan ganda. Jawaban benar → hero memicu animasi `SKILL_1`, musuh terkena hit.
-  2. **Coding Challenge (`MAIN.PY`):** Dijelaskan pada `FR-07`. Jawaban benar → hero memicu animasi `SKILL_2`, musuh tumbang (`DEATH`).
+  1. **Quiz MCQ / Mini-Puzzle:** 4 opsi pilihan ganda / *Bug Hunt* / *Predict Output*, dilengkapi **tombol ikon `?`** untuk membuka modal materi konsep terkait soal yang sedang dikerjakan. Jawaban benar → hero memicu animasi `SKILL`, musuh terkena hit.
+  2. **Coding Challenge (`MAIN.PY`):** Dijelaskan pada `FR-07` (juga memiliki tombol ikon **`?`** untuk referensi materi serta tombol `Hint` dari `Laptop`). Jawaban benar → hero memicu animasi `SKILL_2`, musuh tumbang (`DEATH`).
 - **Perhitungan Damage & Armor Buff (`BattleCalculator`):**
   - Base damage kesalahan = `1 HP` (untuk kuis/coding biasa) atau `2 HP` (untuk Boss Battle Ch.3).
   - Jika **`Firewall Shield`** terpasang di equipment slot:
