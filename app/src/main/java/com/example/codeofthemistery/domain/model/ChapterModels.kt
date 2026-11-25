@@ -6,10 +6,24 @@ enum class ChapterStatus {
     COMPLETED
 }
 
+enum class AlignmentChoice {
+    PATCH,
+    PURGE
+}
+
+enum class PortraitKey {
+    NONE,
+    HERO,
+    ARIA,
+    VEX
+}
+
 enum class EnemyType {
     NONE,
+    SLIME,
     DRONE,
-    GOLEM
+    GOLEM,
+    VEX
 }
 
 enum class HeroAnimState {
@@ -31,6 +45,30 @@ enum class BackgroundKey {
     DOKJA_STREET
 }
 
+data class AlignmentSummary(
+    val patchCount: Int = 0,
+    val purgeCount: Int = 0
+)
+
+data class HelpMateriInfo(
+    val title: String,
+    val summary: String,
+    val codeExample: String
+)
+
+data class BranchOption(
+    val id: String,
+    val label: String,
+    val alignment: AlignmentChoice,
+    val replySpeaker: String,
+    val replyPortrait: PortraitKey,
+    val replyText: String,
+    val consequenceBadge: String,
+    val unlockClue: ClueDefinition? = null,
+    val bonusForce: Int = 0,
+    val weakensBoss: Boolean = false
+)
+
 data class ChapterSummary(
     val id: Int,
     val title: String,
@@ -41,7 +79,8 @@ data class ChapterSummary(
     val rewardXp: Int,
     val rewardPoints: Int,
     val bestHpRemaining: Int = 0,
-    val questionsAnswered: Int = 0
+    val questionsAnswered: Int = 0,
+    val lastAlignmentChoice: AlignmentChoice? = null
 )
 
 data class ClueDefinition(
@@ -56,8 +95,10 @@ data class CodeValidationRule(
     val requiredKeywords: List<String> = emptyList(),
     val nonEmptyStringVars: List<String> = emptyList(),
     val expectedVars: Map<String, Any> = emptyMap(),
+    val allowedVarValues: Map<String, List<Any>> = emptyMap(),
     val expectedStdoutContains: List<String> = emptyList(),
-    val minStdoutLines: Int = 0
+    val minStdoutLines: Int = 0,
+    val rejectUnfilledPlaceholders: Boolean = true
 )
 
 sealed interface SceneStep {
@@ -73,8 +114,59 @@ sealed interface SceneStep {
         val heroAnim: HeroAnimState = HeroAnimState.IDLE,
         override val enemyType: EnemyType = EnemyType.NONE,
         val enemyAnim: EnemyAnimState = EnemyAnimState.IDLE,
+        val portrait: PortraitKey = PortraitKey.NONE,
+        val showAriaCompanion: Boolean = false,
+        val microLessonBadge: String? = null,
+        val enemyMaxHp: Int = 0,
+        val enemyName: String? = null,
         val systemBubbleText: String? = null,
         val unlockClue: ClueDefinition? = null
+    ) : SceneStep
+
+    data class BranchChoiceStep(
+        override val id: String,
+        val speaker: String,
+        val prompt: String,
+        val options: List<BranchOption>,
+        override val backgroundKey: BackgroundKey = BackgroundKey.DOKJA_STREET,
+        override val enemyType: EnemyType = EnemyType.VEX,
+        val portrait: PortraitKey = PortraitKey.VEX,
+        val showAriaCompanion: Boolean = true
+    ) : SceneStep
+
+    data class BugHuntStep(
+        override val id: String,
+        val title: String,
+        val lessonSummary: String,
+        val helpMateri: HelpMateriInfo,
+        val codeLines: List<String>,
+        val bugLineIndex: Int,
+        val explanation: String,
+        val damageToEnemy: Int = 35,
+        val enemyMaxHp: Int = 60,
+        val enemyName: String = "Syntax Slime",
+        override val backgroundKey: BackgroundKey = BackgroundKey.DOKJA_STREET,
+        override val enemyType: EnemyType = EnemyType.SLIME,
+        val showAriaCompanion: Boolean = true,
+        val isBoss: Boolean = false
+    ) : SceneStep
+
+    data class CodeChipsStep(
+        override val id: String,
+        val title: String,
+        val lessonSummary: String,
+        val helpMateri: HelpMateriInfo,
+        val templateSegments: List<String>,
+        val chipOptions: List<String>,
+        val expectedChipsInOrder: List<String>,
+        val explanation: String,
+        val damageToEnemy: Int = 60,
+        val enemyMaxHp: Int = 120,
+        val enemyName: String = "Stone Golem",
+        override val backgroundKey: BackgroundKey = BackgroundKey.DOKJA_STREET,
+        override val enemyType: EnemyType = EnemyType.GOLEM,
+        val showAriaCompanion: Boolean = true,
+        val isBoss: Boolean = true
     ) : SceneStep
 
     data class QuizBattleStep(
@@ -83,6 +175,13 @@ sealed interface SceneStep {
         val options: List<String>,
         val correctIndex: Int,
         val explanation: String,
+        val title: String = "Quiz Analisis",
+        val codeSnippet: String? = null,
+        val helpMateri: HelpMateriInfo? = null,
+        val damageToEnemy: Int = 25,
+        val enemyMaxHp: Int = 0,
+        val enemyName: String = "Anomaly",
+        val showAriaCompanion: Boolean = true,
         override val backgroundKey: BackgroundKey = BackgroundKey.DOKJA_STREET,
         override val enemyType: EnemyType = EnemyType.DRONE,
         val isBoss: Boolean = false
@@ -95,6 +194,12 @@ sealed interface SceneStep {
         val starterCode: String,
         val hintText: String,
         val validationRule: CodeValidationRule,
+        val codeChips: List<String> = emptyList(),
+        val helpMateri: HelpMateriInfo? = null,
+        val damageToEnemy: Int = 60,
+        val enemyMaxHp: Int = 0,
+        val enemyName: String = "Stone Golem",
+        val showAriaCompanion: Boolean = true,
         override val backgroundKey: BackgroundKey = BackgroundKey.DOKJA_STREET,
         override val enemyType: EnemyType = EnemyType.GOLEM,
         val isBoss: Boolean = false
@@ -103,6 +208,8 @@ sealed interface SceneStep {
     data class LootClaimStep(
         override val id: String,
         val message: String,
+        val enemyName: String = "Stone Golem",
+        val enemyMaxHp: Int = 120,
         override val backgroundKey: BackgroundKey = BackgroundKey.DOKJA_STREET,
         override val enemyType: EnemyType = EnemyType.GOLEM
     ) : SceneStep
@@ -114,5 +221,6 @@ data class ChapterScript(
     val subtitle: String,
     val rewardXp: Int,
     val rewardPoints: Int,
+    val cliffhangerText: String = "",
     val steps: List<SceneStep>
 )
