@@ -64,7 +64,7 @@ fun SignUpScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Code of the Mistery",
+            text = "Code of the Mystery",
             style = MaterialTheme.typography.titleLarge,
             color = PrimaryLavender
         )
@@ -166,10 +166,10 @@ fun SignUpScreen(
         AlertDialog(
             onDismissRequest = { oauthProviderDialog = null },
             containerColor = SurfaceCard,
-            title = { Text("OAuth $provider (Phase 2)", color = PrimaryLavender) },
+            title = { Text("Daftar dengan $provider", color = PrimaryLavender) },
             text = {
                 Text(
-                    "Registrasi via $provider disiapkan untuk backend Express + JWT. Silakan isi form Sign Up di atas untuk akun lokal.",
+                    "Pendaftaran melalui akun $provider belum tersedia pada versi saat ini. Silakan isi form Sign Up di atas untuk membuat akun.",
                     color = TextPrimary,
                     style = MaterialTheme.typography.bodySmall
                 )
