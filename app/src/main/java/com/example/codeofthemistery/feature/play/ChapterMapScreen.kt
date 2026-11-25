@@ -205,7 +205,7 @@ fun ChapterMapScreen(
             title = { Text(ch.title, color = PrimaryLavender) },
             text = {
                 val reason = if (!ch.isPlayable) {
-                    "${ch.subtitle}\n\nChapter ekspansi ini disiapkan untuk Phase 2 bersama backend Express. Selesaikan Chapter 1–3 untuk menaklukkan seluruh konten UAS!"
+                    "${ch.subtitle}\n\nChapter lanjutan ini akan segera hadir pada pembaruan berikutnya. Selesaikan Chapter 1–3 terlebih dahulu!"
                 } else {
                     "${ch.subtitle}\n\nSelesaikan Chapter ${ch.id - 1} terlebih dahulu untuk membuka akses ke chapter ini."
                 }
