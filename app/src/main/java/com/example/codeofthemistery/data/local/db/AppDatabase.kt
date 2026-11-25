@@ -29,7 +29,7 @@ import com.example.codeofthemistery.data.local.entity.UserItemEntity
         RewardCatalogEntity::class,
         RedeemedVoucherEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
