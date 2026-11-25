@@ -5,7 +5,6 @@ import com.example.codeofthemistery.core.util.HashUtil
 import com.example.codeofthemistery.data.local.dao.AchievementDao
 import com.example.codeofthemistery.data.local.dao.ChapterDao
 import com.example.codeofthemistery.data.local.dao.InventoryDao
-import com.example.codeofthemistery.data.local.dao.RedeemDao
 import com.example.codeofthemistery.data.local.dao.UserDao
 import com.example.codeofthemistery.data.local.datastore.SessionPreferences
 import com.example.codeofthemistery.data.local.entity.UserEntity
@@ -25,7 +24,6 @@ class AuthRepositoryImpl(
     private val chapterDao: ChapterDao,
     private val inventoryDao: InventoryDao,
     private val achievementDao: AchievementDao,
-    private val redeemDao: RedeemDao,
     private val sessionPreferences: SessionPreferences,
     private val catalogSeeder: CatalogSeeder
 ) : AuthRepository {
@@ -37,7 +35,9 @@ class AuthRepositoryImpl(
     override fun observeActiveUser(): Flow<User?> =
         sessionPreferences.activeUserIdFlow.flatMapLatest { userId ->
             if (userId == null) flowOf(null)
-            else userDao.observeUser(userId).map { it?.toDomain() }
+            else userDao.observeUser(userId).map { entity ->
+                if (entity == null || entity.isDemoAccount) null else entity.toDomain()
+            }
         }
 
     override fun observeHapticsEnabled(): Flow<Boolean> = sessionPreferences.hapticsEnabledFlow
@@ -45,8 +45,13 @@ class AuthRepositoryImpl(
 
     override suspend fun hasActiveSession(): Boolean {
         catalogSeeder.ensureSeeded()
+        userDao.purgeLegacyDemoUsers()
         val id = sessionPreferences.getActiveUserId() ?: return false
-        return userDao.getById(id) != null
+        val exists = userDao.getById(id) != null
+        if (!exists) {
+            sessionPreferences.setActiveUserId(null)
+        }
+        return exists
     }
 
     override suspend fun login(email: String, password: String): AppResult<User> {
@@ -90,41 +95,15 @@ class AuthRepositoryImpl(
             createdAt = now
         )
         userDao.upsert(entity)
-        seedUserDefaults(userId = userId, isDemo = false, now = now)
+        seedUserDefaults(userId = userId, now = now)
         sessionPreferences.setActiveUserId(userId)
         sessionPreferences.setLastChapterId(1)
         return AppResult.Success(entity.toDomain())
     }
 
-    override suspend fun loginAsDemoTester(): AppResult<User> {
-        catalogSeeder.ensureSeeded()
-        val existing = userDao.getById(AppSeedData.DEMO_USER_ID)
-        val demoUser = existing ?: seedDemoAccountFresh()
-        sessionPreferences.setActiveUserId(demoUser.id)
-        return AppResult.Success(demoUser.toDomain())
-    }
-
-    override suspend fun resetDemoUser(): AppResult<Unit> {
-        catalogSeeder.ensureSeeded()
-        val demo = seedDemoAccountFresh()
-        sessionPreferences.setActiveUserId(demo.id)
-        sessionPreferences.setLastChapterId(1)
-        return AppResult.Success(Unit)
-    }
-
-    private suspend fun seedDemoAccountFresh(): UserEntity {
-        val now = System.currentTimeMillis()
-        val demo = AppSeedData.createDemoUser(now)
-        userDao.upsert(demo)
-        redeemDao.deleteVouchersForUser(demo.id)
-        achievementDao.deleteCluesForUser(demo.id)
-        seedUserDefaults(userId = demo.id, isDemo = true, now = now)
-        return demo
-    }
-
-    private suspend fun seedUserDefaults(userId: String, isDemo: Boolean, now: Long) {
-        chapterDao.upsertAll(AppSeedData.defaultProgressForNewUser(userId, unlockAllPlayable = isDemo, now = now))
-        inventoryDao.upsertUserItems(AppSeedData.defaultItemsForNewUser(userId, isDemo = isDemo))
+    private suspend fun seedUserDefaults(userId: String, now: Long) {
+        chapterDao.upsertAll(AppSeedData.defaultProgressForNewUser(userId, now = now))
+        inventoryDao.upsertUserItems(AppSeedData.defaultItemsForNewUser(userId))
         achievementDao.upsertUserAchievements(AppSeedData.defaultAchievementsForUser(userId))
     }
 
