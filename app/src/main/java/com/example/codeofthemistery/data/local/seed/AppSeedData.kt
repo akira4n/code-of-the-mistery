@@ -1,6 +1,5 @@
 package com.example.codeofthemistery.data.local.seed
 
-import com.example.codeofthemistery.core.util.HashUtil
 import com.example.codeofthemistery.data.local.entity.AchievementEntity
 import com.example.codeofthemistery.data.local.entity.ChapterProgressEntity
 import com.example.codeofthemistery.data.local.entity.ItemEntity
@@ -8,24 +7,25 @@ import com.example.codeofthemistery.data.local.entity.RewardCatalogEntity
 import com.example.codeofthemistery.data.local.entity.UserAchievementEntity
 import com.example.codeofthemistery.data.local.entity.UserEntity
 import com.example.codeofthemistery.data.local.entity.UserItemEntity
+import com.example.codeofthemistery.domain.model.AlignmentChoice
 import com.example.codeofthemistery.domain.model.BackgroundKey
+import com.example.codeofthemistery.domain.model.BranchOption
 import com.example.codeofthemistery.domain.model.ChapterScript
 import com.example.codeofthemistery.domain.model.ChapterStatus
 import com.example.codeofthemistery.domain.model.ClueDefinition
 import com.example.codeofthemistery.domain.model.CodeValidationRule
 import com.example.codeofthemistery.domain.model.EnemyAnimState
 import com.example.codeofthemistery.domain.model.EnemyType
+import com.example.codeofthemistery.domain.model.HelpMateriInfo
 import com.example.codeofthemistery.domain.model.HeroAnimState
+import com.example.codeofthemistery.domain.model.PortraitKey
 import com.example.codeofthemistery.domain.model.SceneStep
 
 /**
  * Provides initial catalogs, chapter scripts (Ch. 1–3 playable, Ch. 4–7 locked roadmap),
- * and user/demo account seeding data.
+ * and new user default seeding data.
  */
 object AppSeedData {
-
-    const val DEMO_USER_ID = "user_demo_tester"
-    const val DEMO_EMAIL = "demo@codeofthemistery.app"
 
     data class ChapterMeta(
         val id: Int,
@@ -237,25 +237,9 @@ object AppSeedData {
         )
     )
 
-    fun createDemoUser(now: Long = System.currentTimeMillis()): UserEntity = UserEntity(
-        id = DEMO_USER_ID,
-        name = "Player Name",
-        email = DEMO_EMAIL,
-        passwordHash = HashUtil.hashPassword("demo123", DEMO_EMAIL),
-        level = 2,
-        currentXp = 697,
-        points = 15000,
-        isDemoAccount = true,
-        createdAt = now
-    )
-
-    fun defaultProgressForNewUser(userId: String, unlockAllPlayable: Boolean = false, now: Long = System.currentTimeMillis()): List<ChapterProgressEntity> =
+    fun defaultProgressForNewUser(userId: String, now: Long = System.currentTimeMillis()): List<ChapterProgressEntity> =
         chaptersMeta.map { ch ->
-            val status = when {
-                ch.id == 1 -> ChapterStatus.UNLOCKED.name
-                unlockAllPlayable && ch.isPlayable -> ChapterStatus.UNLOCKED.name
-                else -> ChapterStatus.LOCKED.name
-            }
+            val status = if (ch.id == 1) ChapterStatus.UNLOCKED.name else ChapterStatus.LOCKED.name
             ChapterProgressEntity(
                 userId = userId,
                 chapterId = ch.id,
@@ -266,22 +250,10 @@ object AppSeedData {
             )
         }
 
-    fun defaultItemsForNewUser(userId: String, isDemo: Boolean): List<UserItemEntity> = listOf(
+    fun defaultItemsForNewUser(userId: String): List<UserItemEntity> = listOf(
         UserItemEntity(userId = userId, itemId = "item_laptop", quantity = 1, equippedSlot = 1, isUnlocked = true),
-        UserItemEntity(
-            userId = userId,
-            itemId = "item_firewall_shield",
-            quantity = if (isDemo) 1 else 0,
-            equippedSlot = if (isDemo) 2 else null,
-            isUnlocked = isDemo
-        ),
-        UserItemEntity(
-            userId = userId,
-            itemId = "item_syntax_potion",
-            quantity = if (isDemo) 3 else 1,
-            equippedSlot = if (isDemo) 3 else null,
-            isUnlocked = true
-        ),
+        UserItemEntity(userId = userId, itemId = "item_firewall_shield", quantity = 0, equippedSlot = null, isUnlocked = false),
+        UserItemEntity(userId = userId, itemId = "item_syntax_potion", quantity = 1, equippedSlot = null, isUnlocked = true),
         UserItemEntity(userId = userId, itemId = "item_debugger_visor", quantity = 0, equippedSlot = null, isUnlocked = false),
         UserItemEntity(userId = userId, itemId = "item_overclock_core", quantity = 0, equippedSlot = null, isUnlocked = false)
     )
@@ -310,110 +282,306 @@ object AppSeedData {
         subtitle = "Mastering Logic, Surviving Syntax",
         rewardXp = 500,
         rewardPoints = 500,
+        cliffhangerText = "Di kejauhan, gerbang kereta bawah tanah Subway Station 05 berbunyi nyaring. Lampu alarm merah menyala — ratusan Rogue Drone mengudara, sementara siluet Vex terlihat menuruni eskalator gelap...",
         steps = listOf(
+            // ACT 1: ANOMALY OPENING & MICRO-LESSON 1
             SceneStep.NarrationStep(
                 id = "c1_s1",
                 speaker = "NARATOR",
-                text = "The Great Runtime Error !! Pada tahun 2026, langit retak seperti layar crash, memperlihatkan aliran kode hexadecimal. Hukum fisika kolaps akibat Logic Error di kernel bumi.",
+                text = "The Great Runtime Error! Pada tahun 2026, langit terbelah bagai monitor yang gagal merender realitas, menumpahkan aliran kode hexadecimal 0xDEADCODE ke seluruh penjuru kota.",
                 backgroundKey = BackgroundKey.STORY_ERROR,
                 heroAnim = HeroAnimState.IDLE,
                 enemyType = EnemyType.NONE
             ),
             SceneStep.NarrationStep(
                 id = "c1_s2",
-                speaker = "???",
-                text = "AAH, DIMANA AKU SEKARANG!? Di depan Dokja Supermarket, udara berbau ozon dan kode Python melayang di udara...",
+                speaker = "PROTAGONIS",
+                portrait = PortraitKey.HERO,
+                text = "AAH, DIMANA AKU SEKARANG!? Kenapa papan neon Dokja Supermarket berkedip menuliskan ERROR_LOGIC_KERNEL_FAILURE?!",
                 backgroundKey = BackgroundKey.DOKJA_STREET,
                 heroAnim = HeroAnimState.RUN,
                 enemyType = EnemyType.NONE
             ),
             SceneStep.NarrationStep(
-                id = "c1_s3",
-                speaker = "SYSTEM",
-                text = "Kamu masih <undefined>. Kamu bisa men-assign nama kamu di variabel agar sistem mengenalimu sebelum monster anomali mendeteksi keberadaanmu.",
+                id = "c1_s3_aria",
+                speaker = "ARIA",
+                portrait = PortraitKey.ARIA,
+                showAriaCompanion = true,
+                text = "Sinkronisasi berhasil! Halo, aku ARIA, asisten runtime-mu. Status identitasmu di jaringan saat ini masih <undefined> — sistem keamanan akan menganggapmu bug jika dibiarkan!",
                 backgroundKey = BackgroundKey.DOKJA_STREET,
                 heroAnim = HeroAnimState.IDLE,
                 enemyType = EnemyType.NONE,
-                systemBubbleText = "Kamu masih <undefined>, assign nama kamu di variabel agar sistem mengenalinya!",
+                systemBubbleText = "Peringatan Sistem: Entitas <undefined> terdeteksi di Distrik 01!"
+            ),
+            SceneStep.NarrationStep(
+                id = "c1_s4_lesson",
+                speaker = "ARIA",
+                portrait = PortraitKey.ARIA,
+                showAriaCompanion = true,
+                microLessonBadge = "MATERI PYTHON • VARIABEL & TIPE DATA",
+                text = "Di Python, variabel dibuat dengan format nama = nilai. Gunakan tanda kutip untuk teks/String (\"Coder\"), angka murni untuk Integer (6), huruf awal kapital untuk Boolean (True/False), dan # untuk komentar catatan!",
+                backgroundKey = BackgroundKey.DOKJA_STREET,
+                heroAnim = HeroAnimState.IDLE,
+                enemyType = EnemyType.NONE,
                 unlockClue = ClueDefinition(
                     id = "clue_ch1_vars",
                     chapterId = 1,
                     title = "Variabel & Tipe Data Dasar Python",
-                    content = "Di Python, variabel dibuat dengan: nama_variabel = nilai.\nTipe data dasar: string (\"teks\"), integer (6), float (3.5), dan boolean (True/False)."
+                    content = "Format: nama_variabel = nilai\n• str: teks bertanda kutip, mis. \"Coder\"\n• int: bilangan bulat tanpa kutip, mis. 6\n• float: desimal, mis. 3.5\n• bool: True atau False (awal kapital)\n• #: komentar (diabaikan saat eksekusi)"
                 )
             ),
             SceneStep.CodeBattleStep(
                 id = "c1_c1",
-                title = "Inisialisasi Identitas Coder",
-                lessonSummary = "Di Python, kamu bisa membuat variabel dengan cara:\nnama_variabel = \"value\"\nTipe data dasar: string, integer, float, boolean.",
+                title = "Inisialisasi Identitas Coder (MAIN.PY)",
+                lessonSummary = "Lengkapi slot ____ agar variabel nama bertipe String, HP bernilai angka 6 (Integer), lalu jalankan terminal untuk mendaftarkan identitasmu.",
                 starterCode = """
-                    # Ini adalah komentar, baris ini tidak akan dieksekusi
-                    nama = "Dokja"
-                    HP = 6
-                    skill = "Programming"
-                    print("Nama:", nama)
+                    # Inisialisasi identitas The Mystery Coder
+                    nama = ____
+                    HP = ____
+                    aktif = True
+
+                    print("Coder:", nama)
                     print("HP:", HP)
-                    print("Skill:", skill)
                 """.trimIndent(),
-                hintText = "Pastikan variabel nama berisi string tidak kosong (contoh: \"Dokja\") dan ketiga baris print() tetap ada.",
-                validationRule = CodeValidationRule(
-                    nonEmptyStringVars = listOf("nama", "skill"),
-                    expectedVars = mapOf("HP" to 6),
-                    minStdoutLines = 3
+                codeChips = listOf("\"Coder\"", "6", "\"6\"", "True", "undefined"),
+                hintText = "Isi slot pertama dengan teks berkutip seperti \"Coder\" atau namamu, lalu isi HP dengan angka 6 tanpa kutip.",
+                helpMateri = HelpMateriInfo(
+                    title = "Variabel, String, Integer & print()",
+                    summary = "String wajib diapit tanda kutip ganda/tunggal, sedangkan angka bulat (Integer) ditulis langsung tanpa kutip. Gunakan print(...) untuk mencetak hasil ke terminal.",
+                    codeExample = "nama = \"Dokja\"\nHP = 6\nprint(\"Coder:\", nama)"
                 ),
+                validationRule = CodeValidationRule(
+                    nonEmptyStringVars = listOf("nama"),
+                    expectedVars = mapOf("HP" to 6),
+                    minStdoutLines = 2
+                ),
+                showAriaCompanion = true,
                 backgroundKey = BackgroundKey.DOKJA_STREET,
                 enemyType = EnemyType.NONE,
                 isBoss = false
             ),
+
+            // ACT 2: BRANCHING ENCOUNTER WITH VEX ("NULL")
             SceneStep.NarrationStep(
-                id = "c1_s4",
-                speaker = "SYSTEM ALERT",
-                text = "Golem Batu muncul dari retakan aspal Dokja Supermarket! Gunakan pengetahuan tipe data & kondisi logika untuk menembus pertahanannya!",
+                id = "c1_s5_vex",
+                speaker = "VEX (\"Null\")",
+                portrait = PortraitKey.VEX,
+                showAriaCompanion = true,
+                text = "Oh? Ada orang lain yang laptop-nya ikut bangkit? Jangan buang waktu menambal kota penuh spaghetti code ini. Satu-satunya jalan adalah menghapus kernel dan me-reset dunia dari nol (Purge)!",
+                backgroundKey = BackgroundKey.DOKJA_STREET,
+                heroAnim = HeroAnimState.IDLE,
+                enemyType = EnemyType.VEX,
+                enemyAnim = EnemyAnimState.IDLE,
+                systemBubbleText = "Pertemuan Rival: Vex (\"Null\") menunggumu di jalanan."
+            ),
+            SceneStep.BranchChoiceStep(
+                id = "c1_branch_vex",
+                speaker = "VEX (\"Null\")",
+                portrait = PortraitKey.VEX,
+                showAriaCompanion = true,
+                prompt = "ARIA memperingatkan bahwa hard reset akan menghapus seluruh ingatan warga di buffer kota. Bagaimana sikapmu terhadap Vex?",
+                backgroundKey = BackgroundKey.DOKJA_STREET,
+                enemyType = EnemyType.VEX,
+                options = listOf(
+                    BranchOption(
+                        id = "opt_patch_defend",
+                        label = "Aku akan memperbaiki bug ini tanpa mengorbankan siapa pun!",
+                        alignment = AlignmentChoice.PATCH,
+                        replySpeaker = "ARIA",
+                        replyPortrait = PortraitKey.ARIA,
+                        replyText = "Pilihan berani! Saat Vex mundur, aku berhasil memindai jejak kode miliknya — kelemahan armor Stone Golem dan Secret Clue tersimpan di Codex!",
+                        consequenceBadge = "+1 PATCH • SECRET CLUE • KELEMAHAN BOSS",
+                        unlockClue = ClueDefinition(
+                            id = "clue_ch1_secret_comments",
+                            chapterId = 1,
+                            title = "[Secret Clue] Jejak Kernel & Overdrive 150",
+                            content = "Catatan tersembunyi di komentar (#): Arsitek sistem mengizinkan total_power ditingkatkan ke 150 (Overdrive) saat menghadapi Boss Golem di Distrik 01!"
+                        ),
+                        weakensBoss = true
+                    ),
+                    BranchOption(
+                        id = "opt_purge_power",
+                        label = "Tunjukkan di mana Null Kernel berada, aku butuh kekuatan cepat!",
+                        alignment = AlignmentChoice.PURGE,
+                        replySpeaker = "VEX (\"Null\")",
+                        replyPortrait = PortraitKey.VEX,
+                        replyText = "Hah, akhirnya seseorang yang realistis. Ambil Overclock Fragment ini (+15 FORCE). Tunjukkan kalau kau sanggup bertahan melawan penjaga Distrik 01!",
+                        consequenceBadge = "+1 PURGE • +15 FORCE AWAL",
+                        bonusForce = 15,
+                        weakensBoss = false
+                    ),
+                    BranchOption(
+                        id = "opt_patch_analyze",
+                        label = "Berikan satu bukti kenapa kode dunia ini tidak bisa di-debug.",
+                        alignment = AlignmentChoice.PATCH,
+                        replySpeaker = "VEX (\"Null\")",
+                        replyPortrait = PortraitKey.VEX,
+                        replyText = "Keras kepala... Baca saja log komentar tersembunyi itu kalau kau memang bisa membuktikan teorimu. Sampai jumpa di sektor berikutnya!",
+                        consequenceBadge = "+1 PATCH • SECRET CLUE • KELEMAHAN BOSS",
+                        unlockClue = ClueDefinition(
+                            id = "clue_ch1_secret_comments",
+                            chapterId = 1,
+                            title = "[Secret Clue] Jejak Kernel & Overdrive 150",
+                            content = "Catatan tersembunyi di komentar (#): Arsitek sistem mengizinkan total_power ditingkatkan ke 150 (Overdrive) saat menghadapi Boss Golem di Distrik 01!"
+                        ),
+                        weakensBoss = true
+                    )
+                )
+            ),
+
+            // ACT 3: PRE-BATTLE MICRO-LESSON & SKIRMISH VS SYNTAX SLIME (60 HP)
+            SceneStep.NarrationStep(
+                id = "c1_s6_slime_lesson",
+                speaker = "ARIA",
+                portrait = PortraitKey.ARIA,
+                showAriaCompanion = true,
+                microLessonBadge = "MATERI PYTHON • CASE-SENSITIVE & PEMDAS",
+                text = "Awas, Syntax Slime muncul! Sebelum menyerang, ingat dua aturan penting Python: (1) Boolean WAJIB huruf awal kapital (`True`/`False`, bukan `true`/`false`). (2) Perkalian `*` selalu dihitung lebih dulu sebelum penjumlahan `+`!",
+                backgroundKey = BackgroundKey.DOKJA_STREET,
+                heroAnim = HeroAnimState.IDLE,
+                enemyType = EnemyType.SLIME,
+                enemyAnim = EnemyAnimState.IDLE,
+                enemyMaxHp = 60,
+                enemyName = "Syntax Slime",
+                systemBubbleText = "Anomali Mendekat: Syntax Slime (60 HP) muncul dari selokan!"
+            ),
+            SceneStep.BugHuntStep(
+                id = "c1_bughunt_slime",
+                title = "Bug Hunt • Hancurkan Pertahanan Slime",
+                lessonSummary = "Temukan dan ketuk 1 baris kode Python yang menyebabkan error agar tebasan logika mengenai Syntax Slime (-35 HP)!",
+                helpMateri = HelpMateriInfo(
+                    title = "Aturan Huruf Kapital (Case-Sensitive)",
+                    summary = "Python membedakan huruf besar dan kecil. Nilai logika Boolean hanya sah bila ditulis True atau False dengan huruf awal kapital.",
+                    codeExample = "is_ready = True   # Benar\nis_ready = true   # NameError!"
+                ),
+                codeLines = listOf(
+                    "# Status awal pertahanan",
+                    "shield_level = 2",
+                    "hero_name = \"Mystery Coder\"",
+                    "is_ready = true",
+                    "print(hero_name, shield_level)"
+                ),
+                bugLineIndex = 3,
+                explanation = "Baris 4 salah karena menulis `true` huruf kecil. Di Python, Boolean wajib diawali huruf kapital: `True`!",
+                damageToEnemy = 35,
+                enemyMaxHp = 60,
+                enemyName = "Syntax Slime",
+                backgroundKey = BackgroundKey.DOKJA_STREET,
+                enemyType = EnemyType.SLIME,
+                showAriaCompanion = true,
+                isBoss = false
+            ),
+            SceneStep.QuizBattleStep(
+                id = "c1_predict_slime",
+                title = "Predict Output • Finisher Slime",
+                prompt = "Tebak hasil output terminal berikut untuk melepaskan tebasan penutup melawan Syntax Slime (-25 HP):",
+                codeSnippet = "x = 10\ny = 3\nprint(x + y * 2)",
+                options = listOf("26", "16", "20", "Error"),
+                correctIndex = 1,
+                explanation = "Sesuai prioritas operator (PEMDAS), perkalian `3 * 2` (= 6) dieksekusi lebih dulu sebelum `10 + 6` = `16`.",
+                helpMateri = HelpMateriInfo(
+                    title = "Prioritas Operator Matematika",
+                    summary = "Perkalian (*) dan pembagian (/) selalu diproses terlebih dahulu dibanding penjumlahan (+) dan pengurangan (-), kecuali diberi tanda kurung ().",
+                    codeExample = "print(10 + 3 * 2)    # 16\nprint((10 + 3) * 2)  # 26"
+                ),
+                damageToEnemy = 25,
+                enemyMaxHp = 60,
+                enemyName = "Syntax Slime",
+                backgroundKey = BackgroundKey.DOKJA_STREET,
+                enemyType = EnemyType.SLIME,
+                showAriaCompanion = true,
+                isBoss = false
+            ),
+
+            // ACT 4: BOSS BRIEFING & MULTI-PHASE BOSS BATTLE VS STONE GOLEM (120 HP)
+            SceneStep.NarrationStep(
+                id = "c1_s7_boss_lesson",
+                speaker = "ARIA",
+                portrait = PortraitKey.ARIA,
+                showAriaCompanion = true,
+                microLessonBadge = "MATERI BOSS • PERCABANGAN IF & OPERATOR",
+                text = "Hati-hati! Boss Stone Golem memiliki perisai energi (`shields_active = True`). Gunakan pernyataan `if kondisi:` (akhiri dengan `:`, beri 4 spasi menjorok di baris dalamnya). Gunakan `>` untuk 'lebih dari' dan `==` untuk membandingkan kesamaan!",
                 backgroundKey = BackgroundKey.DOKJA_STREET,
                 heroAnim = HeroAnimState.IDLE,
                 enemyType = EnemyType.GOLEM,
                 enemyAnim = EnemyAnimState.IDLE,
-                systemBubbleText = "<MAIN SCENARIO #1> Golem Menghadang! Jawab analisis tipe data dengan tepat!"
+                enemyMaxHp = 120,
+                enemyName = "Stone Golem",
+                systemBubbleText = "<MAIN SCENARIO #1: DECRYPTION BATTLE> Musuh: Stone Golem (120 HP)",
+                unlockClue = ClueDefinition(
+                    id = "clue_ch1_ops_if",
+                    chapterId = 1,
+                    title = "Percabangan if & Operator Perbandingan",
+                    content = "Struktur if:\nif kondisi:\n    aksi_menjorok_4_spasi\n\nOperator: > (lebih dari), < (kurang dari), == (sama dengan), != (tidak sama)."
+                )
             ),
-            SceneStep.QuizBattleStep(
-                id = "c1_q1",
-                prompt = "Pada Python, jika kamu menulis `shields_active = True`, tipe data apakah yang dimiliki variabel `shields_active`?",
-                options = listOf("String", "Integer", "Boolean", "Float"),
-                correctIndex = 2,
-                explanation = "`True` atau `False` (huruf awal kapital di Python) adalah tipe data Boolean.",
+            SceneStep.CodeChipsStep(
+                id = "c1_boss_phase1",
+                title = "Boss Fase 1 • Retakkan Perisai Golem",
+                lessonSummary = "Pilih 2 Code Chips untuk melengkapi syarat pengecekan energi terminal lebih dari 50 DAN perisai sedang aktif (-60 HP Boss).",
+                helpMateri = HelpMateriInfo(
+                    title = "Operator Perbandingan & and",
+                    summary = "Gunakan `>` untuk mengecek lebih besar, dan `==` (dua sama dengan) untuk mengecek apakah dua nilai sama — jangan tertukar dengan `=` pengisian variabel!",
+                    codeExample = "if energy > 50 and shields_active == True:\n    print(\"Perisai Terdeteksi!\")"
+                ),
+                templateSegments = listOf("if energy ", " 50 and shields_active ", " True:"),
+                chipOptions = listOf(">", "==", "<", "=", ">=", "!="),
+                expectedChipsInOrder = listOf(">", "=="),
+                explanation = "Operator `>` mengecek apakah energy lebih dari 50, dan `==` membandingkan apakah shields_active bernilai True!",
+                damageToEnemy = 60,
+                enemyMaxHp = 120,
+                enemyName = "Stone Golem",
                 backgroundKey = BackgroundKey.DOKJA_STREET,
                 enemyType = EnemyType.GOLEM,
-                isBoss = false
+                showAriaCompanion = true,
+                isBoss = true
             ),
             SceneStep.CodeBattleStep(
-                id = "c1_c2",
-                title = "Decryption Battle vs Golem",
-                lessonSummary = "Gunakan kondisi `if energy > 50:` untuk menurunkan perisai Golem dan isi `total_power = 100`.",
+                id = "c1_boss_phase2",
+                title = "Boss Fase 2 • Decryption Finisher (MAIN.PY)",
+                lessonSummary = "Perisai Golem sudah retak! Lengkapi 3 slot ____ pada blok if untuk menonaktifkan shields_active (False) dan mengatur total_power = 100 (atau 150 jika Secret Clue terbuka)!",
                 starterCode = """
-                    # Player input values
+                    # Status energi & perisai Golem
                     energy = 70
                     shields_active = True
+                    total_power = 0
 
                     # Turunkan perisai jika energy > 50
-                    if energy > 50:
-                        shields_active = False
-                        total_power = 100
+                    if energy ____ 50:
+                        shields_active = ____
+                        total_power = ____
 
                     print("Power:", total_power)
                 """.trimIndent(),
-                hintText = "Gunakan keyword `if`, ubah `shields_active = False`, dan set `total_power = 100` di dalam blok if.",
+                codeChips = listOf(">", "False", "100", "150", "True", "=="),
+                hintText = "Isi kondisi dengan >, ubah shields_active = False, lalu isi total_power = 100 (atau 150 bila kamu membuka Secret Clue!).",
+                helpMateri = HelpMateriInfo(
+                    title = "Blok if dan Indentasi 4 Spasi",
+                    summary = "Baris di bawah `if kondisi:` wajib menjorok (4 spasi) agar hanya berjalan ketika kondisi benar. Pastikan tidak ada slot `____` yang tertinggal.",
+                    codeExample = "if energy > 50:\n    shields_active = False\n    total_power = 100"
+                ),
                 validationRule = CodeValidationRule(
                     requiredKeywords = listOf("if"),
-                    expectedVars = mapOf("shields_active" to false, "total_power" to 100),
-                    expectedStdoutContains = listOf("Power:", "100")
+                    expectedVars = mapOf("shields_active" to false),
+                    allowedVarValues = mapOf("total_power" to listOf(100, 150)),
+                    expectedStdoutContains = listOf("Power:"),
+                    minStdoutLines = 1
                 ),
+                damageToEnemy = 60,
+                enemyMaxHp = 120,
+                enemyName = "Stone Golem",
+                showAriaCompanion = true,
                 backgroundKey = BackgroundKey.DOKJA_STREET,
                 enemyType = EnemyType.GOLEM,
-                isBoss = false
+                isBoss = true
             ),
+
+            // ACT 5: LOOT DROP
             SceneStep.LootClaimStep(
                 id = "c1_loot",
-                message = "Golem berhasil dilumpuhkan! Ketuk CLAIM >> untuk mengambil item pertahanan dari reruntuhan.",
+                enemyName = "Stone Golem",
+                enemyMaxHp = 120,
+                message = "Stone Golem berhasil dilumpuhkan! Ketuk CLAIM >> di atas puing untuk mengambil Loot Box dari inti pertahanan.",
                 backgroundKey = BackgroundKey.DOKJA_STREET,
                 enemyType = EnemyType.GOLEM
             )
