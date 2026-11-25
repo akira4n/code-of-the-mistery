@@ -1,5 +1,6 @@
 package com.example.codeofthemistery.feature.items
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +24,7 @@ import androidx.compose.material.icons.rounded.LaptopMac
 import androidx.compose.material.icons.rounded.LocalDrink
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Shield
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -30,7 +32,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,7 +44,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.codeofthemistery.core.theme.BackgroundPrimary
@@ -49,6 +55,7 @@ import com.example.codeofthemistery.core.theme.BorderMuted
 import com.example.codeofthemistery.core.theme.CrimsonDanger
 import com.example.codeofthemistery.core.theme.CyanTerminal
 import com.example.codeofthemistery.core.theme.GoldAccent
+import com.example.codeofthemistery.core.theme.MonoFontFamily
 import com.example.codeofthemistery.core.theme.PrimaryLavender
 import com.example.codeofthemistery.core.theme.SurfaceCard
 import com.example.codeofthemistery.core.theme.SurfaceElevated
@@ -135,6 +142,124 @@ fun ItemsScreen(
             modifier = Modifier.align(Alignment.BottomCenter)
         )
     }
+
+    state.pendingSwapItem?.let { newItem ->
+        SwapSlotDialog(
+            newItem = newItem,
+            equippedSlots = state.equippedSlots,
+            onSelectSlot = viewModel::confirmSwapSlot,
+            onDismiss = viewModel::dismissSwapDialog
+        )
+    }
+}
+
+@Composable
+private fun SwapSlotDialog(
+    newItem: OwnedItem,
+    equippedSlots: List<OwnedItem?>,
+    onSelectSlot: (Int) -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor = SurfaceCard,
+        title = {
+            Text(
+                text = "Tukar Slot Item",
+                style = MaterialTheme.typography.titleLarge,
+                color = PrimaryLavender
+            )
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(
+                    text = "Semua slot penuh. Pilih slot yang ingin ditukar dengan ${newItem.name}:",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TextSecondary
+                )
+                listOf(1, 2, 3).forEach { slotNumber ->
+                    val occupant = equippedSlots.getOrNull(slotNumber - 1)
+                    val isDefaultLocked = occupant != null && !occupant.canUnequip
+                    val accent = occupant?.let { itemAccentColor(it.itemId, it.rarity) } ?: BorderHighlight
+
+                    Surface(
+                        onClick = { if (!isDefaultLocked) onSelectSlot(slotNumber) },
+                        enabled = !isDefaultLocked,
+                        shape = RoundedCornerShape(12.dp),
+                        color = if (isDefaultLocked) SurfaceElevated.copy(alpha = 0.55f) else BackgroundPrimary,
+                        border = BorderStroke(
+                            1.dp,
+                            if (isDefaultLocked) BorderMuted else PrimaryLavender.copy(alpha = 0.45f)
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 12.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(38.dp)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(SurfaceCard)
+                                    .border(1.dp, accent.copy(alpha = 0.55f), RoundedCornerShape(10.dp)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (occupant != null) {
+                                    Icon(
+                                        imageVector = itemIcon(occupant.itemId),
+                                        contentDescription = occupant.name,
+                                        tint = if (isDefaultLocked) TextMuted else accent,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            }
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Slot $slotNumber • ${occupant?.name ?: "Kosong"}",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = if (isDefaultLocked) TextMuted else TextPrimary,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Text(
+                                    text = if (isDefaultLocked) {
+                                        "Item default • tidak dapat ditukar"
+                                    } else {
+                                        occupant?.statLabel ?: "Tersedia"
+                                    },
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = TextMuted,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                            Text(
+                                text = if (isDefaultLocked) "DEFAULT" else "Tukar",
+                                style = if (isDefaultLocked) {
+                                    MaterialTheme.typography.labelSmall.copy(
+                                        fontFamily = MonoFontFamily,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                } else {
+                                    MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+                                },
+                                color = if (isDefaultLocked) TextMuted else PrimaryLavender
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Batal", color = TextMuted)
+            }
+        }
+    )
 }
 
 @Composable
