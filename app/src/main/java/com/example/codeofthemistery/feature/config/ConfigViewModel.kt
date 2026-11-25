@@ -67,13 +67,6 @@ class ConfigViewModel(
         viewModelScope.launch { authRepository.setHapticsEnabled(enabled) }
     }
 
-    fun resetDemoAccount() {
-        viewModelScope.launch {
-            authRepository.resetDemoUser()
-            messageFlow.value = "Data akun Demo Tester dikembalikan ke kondisi awal (15,000 Points)."
-        }
-    }
-
     fun logout(onLoggedOut: () -> Unit) {
         viewModelScope.launch {
             authRepository.logout()
