@@ -1,6 +1,5 @@
 package com.example.codeofthemistery.feature.auth
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,11 +16,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -40,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.codeofthemistery.core.theme.BackgroundPrimary
-import com.example.codeofthemistery.core.theme.BorderMuted
 import com.example.codeofthemistery.core.theme.CrimsonDanger
 import com.example.codeofthemistery.core.theme.PrimaryLavender
 import com.example.codeofthemistery.core.theme.SuccessGreen
@@ -74,7 +70,7 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Code of the Mistery",
+            text = "Code of the Mystery",
             style = MaterialTheme.typography.titleLarge,
             color = PrimaryLavender
         )
@@ -83,7 +79,7 @@ fun LoginScreen(
 
         Column(modifier = Modifier.fillMaxWidth()) {
             Text(
-                text = "Kembali\nBepertualang!",
+                text = "Kembali\nBerpetualang!",
                 style = MaterialTheme.typography.displaySmall,
                 color = TextPrimary
             )
@@ -141,24 +137,6 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedButton(
-            onClick = { viewModel.loginAsDemoTester(onLoginSuccess) },
-            enabled = !state.isLoading,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            shape = RoundedCornerShape(24.dp),
-            border = BorderStroke(1.dp, PrimaryLavender.copy(alpha = 0.6f))
-        ) {
-            Text(
-                text = "Masuk sebagai Demo Tester (15k Poin)",
-                style = MaterialTheme.typography.labelLarge,
-                color = PrimaryLavender
-            )
-        }
-
         Spacer(modifier = Modifier.height(22.dp))
 
         Row(horizontalArrangement = Arrangement.Center) {
@@ -189,10 +167,10 @@ fun LoginScreen(
         AlertDialog(
             onDismissRequest = { oauthProviderDialog = null },
             containerColor = SurfaceCard,
-            title = { Text("OAuth $provider (Phase 2)", color = PrimaryLavender) },
+            title = { Text("Login dengan $provider", color = PrimaryLavender) },
             text = {
                 Text(
-                    "Login $provider saat ini berupa placeholder UI. Integrasi OAuth + JWT akan aktif saat backend Express disambungkan di Phase 2.\n\nGunakan form Login atau tombol Demo Tester untuk menguji aplikasi sekarang.",
+                    "Login melalui akun $provider belum tersedia pada versi saat ini. Silakan gunakan formulir email dan password di atas.",
                     color = TextPrimary,
                     style = MaterialTheme.typography.bodySmall
                 )
