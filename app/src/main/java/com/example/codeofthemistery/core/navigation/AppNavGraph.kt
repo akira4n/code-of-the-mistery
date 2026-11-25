@@ -148,6 +148,7 @@ fun AppNavGraph() {
 
         composable<MainHubRoute> {
             MainHubScaffold(
+                onPlayChapter = { chapterId -> navController.navigate(GameLoadingRoute(chapterId)) },
                 onNavigateToChapterMap = { navController.navigate(ChapterMapRoute) },
                 onNavigateToAchievements = { navController.navigate(AchievementRoute) },
                 onLoggedOut = {
@@ -199,6 +200,7 @@ fun AppNavGraph() {
 
 @Composable
 private fun MainHubScaffold(
+    onPlayChapter: (Int) -> Unit,
     onNavigateToChapterMap: () -> Unit,
     onNavigateToAchievements: () -> Unit,
     onLoggedOut: () -> Unit
@@ -228,18 +230,19 @@ private fun MainHubScaffold(
                     modifier = Modifier
                         .fillMaxWidth()
                         .navigationBarsPadding()
-                        .padding(horizontal = 16.dp, vertical = 10.dp),
-                    horizontalArrangement = Arrangement.SpaceAround,
+                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     tabs.forEachIndexed { idx, tab ->
                         val active = selectedTab == idx
                         Box(
                             modifier = Modifier
+                                .weight(1f)
                                 .clip(RoundedCornerShape(14.dp))
                                 .background(if (active) PrimaryLavender else SurfaceCard)
                                 .clickable { selectedTab = idx }
-                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                                .padding(vertical = 8.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -255,7 +258,9 @@ private fun MainHubScaffold(
                                     style = MaterialTheme.typography.labelSmall.copy(
                                         fontWeight = if (active) FontWeight.Bold else FontWeight.Medium
                                     ),
-                                    color = if (active) OnPrimaryDark else TextMuted
+                                    color = if (active) OnPrimaryDark else TextMuted,
+                                    maxLines = 1,
+                                    softWrap = false
                                 )
                             }
                         }
@@ -271,10 +276,10 @@ private fun MainHubScaffold(
         ) {
             when (selectedTab) {
                 0 -> HomeScreen(
-                    onNavigateToPlay = onNavigateToChapterMap,
+                    onPlayChapter = onPlayChapter,
+                    onNavigateToChapterMap = onNavigateToChapterMap,
                     onNavigateToItems = { selectedTab = 1 },
-                    onNavigateToAchievements = onNavigateToAchievements,
-                    onNavigateToRedeem = { selectedTab = 2 }
+                    onNavigateToAchievements = onNavigateToAchievements
                 )
                 1 -> ItemsScreen()
                 2 -> RedeemScreen()
