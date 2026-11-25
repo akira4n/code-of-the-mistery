@@ -41,30 +41,63 @@ data class AchievementJoinedRow(
 )
 
 @Dao
-interface UserDao {
+abstract class UserDao {
     @Query("SELECT * FROM users WHERE id = :userId LIMIT 1")
-    fun observeUser(userId: String): Flow<UserEntity?>
+    abstract fun observeUser(userId: String): Flow<UserEntity?>
 
     @Query("SELECT * FROM users WHERE id = :userId LIMIT 1")
-    suspend fun getById(userId: String): UserEntity?
+    abstract suspend fun getById(userId: String): UserEntity?
 
     @Query("SELECT * FROM users WHERE LOWER(email) = LOWER(:email) LIMIT 1")
-    suspend fun getByEmail(email: String): UserEntity?
+    abstract suspend fun getByEmail(email: String): UserEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsert(user: UserEntity)
+    abstract suspend fun upsert(user: UserEntity)
 
     @Query("UPDATE users SET name = :name WHERE id = :userId")
-    suspend fun updateName(userId: String, name: String)
+    abstract suspend fun updateName(userId: String, name: String)
 
     @Query("UPDATE users SET passwordHash = :passwordHash WHERE id = :userId")
-    suspend fun updatePasswordHash(userId: String, passwordHash: String)
+    abstract suspend fun updatePasswordHash(userId: String, passwordHash: String)
 
     @Query("UPDATE users SET level = :level, currentXp = :xp, points = points + :addedPoints WHERE id = :userId")
-    suspend fun updateProgression(userId: String, level: Int, xp: Int, addedPoints: Int)
+    abstract suspend fun updateProgression(userId: String, level: Int, xp: Int, addedPoints: Int)
 
     @Query("UPDATE users SET points = points - :cost WHERE id = :userId AND points >= :cost")
-    suspend fun deductPointsIfEnough(userId: String, cost: Int): Int
+    abstract suspend fun deductPointsIfEnough(userId: String, cost: Int): Int
+
+    @Query("SELECT id FROM users WHERE isDemoAccount = 1 OR id = 'user_demo_tester'")
+    abstract suspend fun getLegacyDemoUserIds(): List<String>
+
+    @Query("DELETE FROM users WHERE id = :userId")
+    abstract suspend fun deleteUserById(userId: String)
+
+    @Query("DELETE FROM chapter_progress WHERE userId = :userId")
+    abstract suspend fun deleteChapterProgressForUser(userId: String)
+
+    @Query("DELETE FROM user_items WHERE userId = :userId")
+    abstract suspend fun deleteItemsForUser(userId: String)
+
+    @Query("DELETE FROM user_achievements WHERE userId = :userId")
+    abstract suspend fun deleteAchievementsForUser(userId: String)
+
+    @Query("DELETE FROM user_clues WHERE userId = :userId")
+    abstract suspend fun deleteCluesForUser(userId: String)
+
+    @Query("DELETE FROM redeemed_vouchers WHERE userId = :userId")
+    abstract suspend fun deleteVouchersForUser(userId: String)
+
+    @Transaction
+    open suspend fun purgeLegacyDemoUsers() {
+        getLegacyDemoUserIds().forEach { uid ->
+            deleteChapterProgressForUser(uid)
+            deleteItemsForUser(uid)
+            deleteAchievementsForUser(uid)
+            deleteCluesForUser(uid)
+            deleteVouchersForUser(uid)
+            deleteUserById(uid)
+        }
+    }
 }
 
 @Dao
@@ -118,6 +151,19 @@ abstract class InventoryDao {
 
     @Query("UPDATE user_items SET quantity = quantity + :delta, isUnlocked = 1 WHERE userId = :userId AND itemId = :itemId")
     abstract suspend fun addQuantity(userId: String, itemId: String, delta: Int)
+
+    @Transaction
+    open suspend fun swapEquippedSlot(
+        userId: String,
+        newItemId: String,
+        replacedItemId: String?,
+        targetSlot: Int
+    ) {
+        if (replacedItemId != null) {
+            setEquippedSlot(userId, replacedItemId, null)
+        }
+        setEquippedSlot(userId, newItemId, targetSlot)
+    }
 }
 
 @Dao
