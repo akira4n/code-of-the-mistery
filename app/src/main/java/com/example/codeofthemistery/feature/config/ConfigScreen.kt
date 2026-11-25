@@ -1,6 +1,5 @@
 package com.example.codeofthemistery.feature.config
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,7 +20,6 @@ import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.HelpOutline
 import androidx.compose.material.icons.rounded.Logout
 import androidx.compose.material.icons.rounded.Person
-import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -29,7 +27,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
@@ -51,7 +48,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.codeofthemistery.core.theme.BackgroundPrimary
-import com.example.codeofthemistery.core.theme.BorderHighlight
 import com.example.codeofthemistery.core.theme.BorderMuted
 import com.example.codeofthemistery.core.theme.CrimsonDark
 import com.example.codeofthemistery.core.theme.PrimaryLavender
@@ -106,7 +102,7 @@ fun ConfigScreen(
                 item {
                     ConfigMenuRow(
                         title = "Privasi dan Keamanan",
-                        subtitle = "Ubah password lokal & info penyimpanan offline",
+                        subtitle = "Kelola password & keamanan akun",
                         icon = Icons.Rounded.Security,
                         onClick = { showSecurityDialog = true }
                     )
@@ -114,7 +110,7 @@ fun ConfigScreen(
                 item {
                     ConfigMenuRow(
                         title = "Tentang dan Bantuan",
-                        subtitle = "Kelompok 6 SI Reguler 4A Unsri • v1.0",
+                        subtitle = "Informasi platform & aplikasi • v1.0",
                         icon = Icons.Rounded.HelpOutline,
                         onClick = { showAboutDialog = true }
                     )
@@ -141,19 +137,6 @@ fun ConfigScreen(
                 }
 
                 item {
-                    OutlinedButton(
-                        onClick = viewModel::resetDemoAccount,
-                        modifier = Modifier.fillMaxWidth().height(48.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(1.dp, BorderHighlight)
-                    ) {
-                        Icon(Icons.Rounded.Refresh, contentDescription = null, tint = PrimaryLavender)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Reset / Muat Akun Demo Tester", color = PrimaryLavender)
-                    }
-                }
-
-                item {
                     HorizontalDivider(color = BorderMuted, modifier = Modifier.padding(vertical = 6.dp))
                     Button(
                         onClick = { viewModel.logout(onLoggedOut) },
@@ -173,7 +156,7 @@ fun ConfigScreen(
                 item {
                     Spacer(modifier = Modifier.height(32.dp))
                     Text(
-                        text = "Code of the Mistery",
+                        text = "Code of the Mystery",
                         style = MaterialTheme.typography.bodySmall,
                         color = TextMuted,
                         modifier = Modifier.fillMaxWidth(),
@@ -195,7 +178,7 @@ fun ConfigScreen(
             text = {
                 Column {
                     Text(
-                        text = if (state.user?.isDemoAccount == true) "Mode: Demo Tester" else "Mode: Akun Lokal",
+                        text = state.user?.email ?: "-",
                         style = MaterialTheme.typography.bodySmall,
                         color = TextMuted
                     )
@@ -230,7 +213,7 @@ fun ConfigScreen(
             text = {
                 Column {
                     Text(
-                        "Data Anda disimpan secara offline dan password di-hash lokal (SHA-256). Integrasi Express + JWT disiapkan di Phase 2.",
+                        "Data akun dan progres belajar Anda tersimpan dengan aman di perangkat ini. Anda dapat memperbarui password akun melalui formulir di bawah ini.",
                         style = MaterialTheme.typography.bodySmall,
                         color = TextMuted
                     )
@@ -256,10 +239,10 @@ fun ConfigScreen(
         AlertDialog(
             onDismissRequest = { showAboutDialog = false },
             containerColor = SurfaceCard,
-            title = { Text("Tentang Code of The Mystery", color = PrimaryLavender) },
+            title = { Text("Tentang Code of the Mystery", color = PrimaryLavender) },
             text = {
                 Text(
-                    "Platform Gamifikasi Edu-RPG & Visual Novel Pemrograman Python.\n\nDisusun oleh Kelompok 6 Sistem Informasi Reguler 4A, Fakultas Ilmu Komputer, Universitas Sriwijaya (2026).",
+                    "Code of the Mystery adalah platform gamifikasi pembelajaran pemrograman Python berbasis Edu-RPG dan Visual Novel.\n\nPelajari sintaks, logika pemrograman, analisis petunjuk, serta selesaikan tantangan kode secara interaktif di dalam game.",
                     style = MaterialTheme.typography.bodySmall,
                     color = TextPrimary
                 )
