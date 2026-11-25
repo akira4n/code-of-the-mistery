@@ -129,4 +129,48 @@ class MiniPythonEvaluatorTest {
         assertFalse(result.isSuccess)
         assertTrue(result.errorMessage?.contains("SyntaxError") == true)
     }
+
+    @Test
+    fun `unfilled placeholder token ____ is rejected with clear SyntaxError`() {
+        val code = """
+            nama = ____
+            HP = 6
+            print(nama, HP)
+        """.trimIndent()
+        val rule = CodeValidationRule(
+            nonEmptyStringVars = listOf("nama"),
+            expectedVars = mapOf("HP" to 6)
+        )
+
+        val result = evaluator.evaluate(code, rule)
+        assertFalse(result.isSuccess)
+        assertFalse(result.isRulePassed)
+        assertEquals(1, result.exitCode)
+        assertTrue(result.errorMessage?.contains("____") == true)
+    }
+
+    @Test
+    fun `allowedVarValues accepts standard 100 or overdrive 150 and rejects invalid value`() {
+        val rule = CodeValidationRule(
+            requiredKeywords = listOf("if"),
+            expectedVars = mapOf("shields_active" to false),
+            allowedVarValues = mapOf("total_power" to listOf(100, 150)),
+            expectedStdoutContains = listOf("Power:")
+        )
+
+        val overdriveCode = """
+            energy = 70
+            shields_active = True
+            total_power = 0
+            if energy > 50:
+                shields_active = False
+                total_power = 150
+            print("Power:", total_power)
+        """.trimIndent()
+
+        val wrongPowerCode = overdriveCode.replace("150", "50")
+
+        assertTrue(evaluator.evaluate(overdriveCode, rule).isRulePassed)
+        assertFalse(evaluator.evaluate(wrongPowerCode, rule).isRulePassed)
+    }
 }
