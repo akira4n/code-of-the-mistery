@@ -13,9 +13,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.HelpOutline
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -29,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -37,20 +42,81 @@ import com.example.codeofthemistery.core.theme.BackgroundPrimary
 import com.example.codeofthemistery.core.theme.BorderHighlight
 import com.example.codeofthemistery.core.theme.BorderMuted
 import com.example.codeofthemistery.core.theme.CrimsonDanger
+import com.example.codeofthemistery.core.theme.CyanTerminal
 import com.example.codeofthemistery.core.theme.GoldAccent
+import com.example.codeofthemistery.core.theme.MonoFontFamily
 import com.example.codeofthemistery.core.theme.OnPrimaryDark
 import com.example.codeofthemistery.core.theme.PrimaryLavender
 import com.example.codeofthemistery.core.theme.SuccessGreen
 import com.example.codeofthemistery.core.theme.SurfaceCard
 import com.example.codeofthemistery.core.theme.TextMuted
 import com.example.codeofthemistery.core.theme.TextPrimary
+import com.example.codeofthemistery.core.theme.TextSecondary
 import com.example.codeofthemistery.core.ui.CyberCard
 import com.example.codeofthemistery.core.ui.NeonButton
 import com.example.codeofthemistery.core.ui.TerminalBadge
 import com.example.codeofthemistery.domain.model.AchievementProgress
+import com.example.codeofthemistery.domain.model.AlignmentChoice
+import com.example.codeofthemistery.domain.model.HelpMateriInfo
 import com.example.codeofthemistery.domain.model.OwnedItem
 import com.example.codeofthemistery.feature.items.itemAccentColor
 import com.example.codeofthemistery.feature.items.itemIcon
+
+@Composable
+fun HelpMateriDialog(
+    info: HelpMateriInfo,
+    onDismiss: () -> Unit
+) {
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(16.dp),
+            color = SurfaceCard,
+            border = BorderStroke(1.5.dp, CyanTerminal.copy(alpha = 0.7f))
+        ) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(Icons.Rounded.HelpOutline, contentDescription = null, tint = CyanTerminal)
+                    Text(
+                        text = info.title,
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = CyanTerminal
+                    )
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = info.summary,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TextPrimary
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color(0xFF101218))
+                        .border(1.dp, BorderHighlight, RoundedCornerShape(10.dp))
+                        .padding(12.dp)
+                ) {
+                    Text(
+                        text = info.codeExample,
+                        style = MaterialTheme.typography.bodySmall.copy(fontFamily = MonoFontFamily),
+                        color = PrimaryLavender
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                NeonButton(
+                    text = "Mengerti",
+                    onClick = onDismiss,
+                    cornerRadius = 10.dp,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun PauseModal(
@@ -165,6 +231,9 @@ fun ChapterCompletedScreen(
     earnedXp: Int,
     earnedPoints: Int,
     questionsAnswered: Int,
+    alignmentChoice: AlignmentChoice?,
+    secretClueUnlocked: Boolean,
+    cliffhangerText: String,
     unlockedAchievements: List<AchievementProgress>,
     onBackHome: () -> Unit
 ) {
@@ -176,40 +245,84 @@ fun ChapterCompletedScreen(
         contentAlignment = Alignment.Center
     ) {
         CyberCard(borderColor = PrimaryLavender.copy(alpha = 0.6f)) {
-            Text(
-                text = "Chapter $chapterId\nCompleted",
-                style = MaterialTheme.typography.displaySmall,
-                color = PrimaryLavender,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(color = BorderMuted)
-            Spacer(modifier = Modifier.height(16.dp))
-
-            ResultStatRow("XP", "+$earnedXp")
-            Spacer(modifier = Modifier.height(8.dp))
-            ResultStatRow("Points", "+$earnedPoints")
-            Spacer(modifier = Modifier.height(8.dp))
-            ResultStatRow("Soal Terjawab", "$questionsAnswered")
-
-            if (unlockedAchievements.isNotEmpty()) {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                Text(
+                    text = "Chapter $chapterId\nCompleted",
+                    style = MaterialTheme.typography.displaySmall,
+                    color = PrimaryLavender,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("Achievement Terbuka:", style = MaterialTheme.typography.labelMedium, color = SuccessGreen)
-                Spacer(modifier = Modifier.height(6.dp))
-                unlockedAchievements.forEach { ach ->
-                    TerminalBadge(text = "${ach.title} (+${ach.rewardXp} XP)", color = SuccessGreen)
-                    Spacer(modifier = Modifier.height(4.dp))
-                }
-            }
+                HorizontalDivider(color = BorderMuted)
+                Spacer(modifier = Modifier.height(16.dp))
 
-            Spacer(modifier = Modifier.height(28.dp))
-            NeonButton(
-                text = "Kembali ke beranda",
-                onClick = onBackHome,
-                cornerRadius = 10.dp,
-                modifier = Modifier.fillMaxWidth()
-            )
+                ResultStatRow("XP", "+$earnedXp")
+                Spacer(modifier = Modifier.height(8.dp))
+                ResultStatRow("Points", "+$earnedPoints")
+                Spacer(modifier = Modifier.height(8.dp))
+                ResultStatRow("Soal Terjawab", "$questionsAnswered")
+
+                if (alignmentChoice != null || secretClueUnlocked) {
+                    Spacer(modifier = Modifier.height(14.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        alignmentChoice?.let { align ->
+                            val alignColor = if (align == AlignmentChoice.PATCH) CyanTerminal else CrimsonDanger
+                            TerminalBadge(text = "JALUR: ${align.name}", color = alignColor)
+                        }
+                        if (secretClueUnlocked) {
+                            TerminalBadge(text = "SECRET CLUE +1", color = GoldAccent)
+                        }
+                    }
+                }
+
+                if (unlockedAchievements.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(14.dp))
+                    Text("Achievement Terbuka:", style = MaterialTheme.typography.labelMedium, color = SuccessGreen)
+                    Spacer(modifier = Modifier.height(6.dp))
+                    unlockedAchievements.forEach { ach ->
+                        TerminalBadge(text = "${ach.title} (+${ach.rewardXp} XP)", color = SuccessGreen)
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
+                }
+
+                if (cliffhangerText.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(14.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(BackgroundPrimary)
+                            .border(1.dp, BorderHighlight, RoundedCornerShape(10.dp))
+                            .padding(12.dp)
+                    ) {
+                        Column {
+                            Text(
+                                text = "BERSAMBUNG KE CHAPTER ${chapterId + 1}",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontFamily = MonoFontFamily,
+                                    fontWeight = FontWeight.Bold
+                                ),
+                                color = PrimaryLavender
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = cliffhangerText,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = TextSecondary
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(22.dp))
+                NeonButton(
+                    text = "Kembali ke beranda",
+                    onClick = onBackHome,
+                    cornerRadius = 10.dp,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
     }
 }
