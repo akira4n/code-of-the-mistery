@@ -66,21 +66,6 @@ class AuthViewModel(
         }
     }
 
-    fun loginAsDemoTester(onSuccess: () -> Unit) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-            when (val res = authRepository.loginAsDemoTester()) {
-                is AppResult.Success -> {
-                    _uiState.update { it.copy(isLoading = false) }
-                    onSuccess()
-                }
-                is AppResult.Error -> {
-                    _uiState.update { it.copy(isLoading = false, errorMessage = res.message) }
-                }
-            }
-        }
-    }
-
     fun requestResetOtp(email: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
