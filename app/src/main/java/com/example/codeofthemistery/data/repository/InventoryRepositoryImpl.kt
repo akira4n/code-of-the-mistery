@@ -34,10 +34,48 @@ class InventoryRepositoryImpl(
             return AppResult.Success(target.equippedSlot)
         }
         val usedSlots = items.mapNotNull { it.equippedSlot }.toSet()
-        val freeSlot = listOf(2, 3).firstOrNull { it !in usedSlots }
-            ?: return AppResult.Error("Slot equipment penuh (maksimal 3 slot). Lepas 1 item terlebih dahulu.")
+        val freeSlot = listOf(1, 2, 3).firstOrNull { it !in usedSlots }
+            ?: return AppResult.Error("Slot equipment penuh (maksimal 3 slot).")
         inventoryDao.setEquippedSlot(userId, itemId, freeSlot)
         return AppResult.Success(freeSlot)
+    }
+
+    override suspend fun equipItemToSlot(
+        userId: String,
+        itemId: String,
+        targetSlot: Int
+    ): AppResult<String?> {
+        if (targetSlot !in 1..3) {
+            return AppResult.Error("Slot tujuan tidak valid.")
+        }
+        catalogSeeder.ensureSeeded()
+        val items = inventoryDao.getUserItems(userId)
+        val target = items.find { it.itemId == itemId }
+            ?: return AppResult.Error("Item tidak ditemukan.")
+        if (!target.isUnlocked || target.quantity <= 0) {
+            return AppResult.Error("Item masih terkunci atau habis.")
+        }
+        if (target.equippedSlot == targetSlot) {
+            return AppResult.Success(null)
+        }
+
+        val catalogById = inventoryDao.getAllCatalogItems().associateBy { it.id }
+        val occupant = items.find { it.equippedSlot == targetSlot }
+        if (occupant != null) {
+            val occupantCatalog = catalogById[occupant.itemId]
+            if (occupantCatalog?.canUnequip == false) {
+                return AppResult.Error("${occupantCatalog.name} adalah item default dan tidak dapat diganti.")
+            }
+        }
+
+        inventoryDao.swapEquippedSlot(
+            userId = userId,
+            newItemId = itemId,
+            replacedItemId = occupant?.itemId,
+            targetSlot = targetSlot
+        )
+        val replacedName = occupant?.let { catalogById[it.itemId]?.name ?: it.itemId }
+        return AppResult.Success(replacedName)
     }
 
     override suspend fun unequipItem(userId: String, itemId: String): AppResult<Unit> {
