@@ -47,6 +47,9 @@ class MiniPythonEvaluator {
 
         return try {
             val lines = preprocessLines(code)
+            if (rule?.rejectUnfilledPlaceholders != false && lines.any { it.content.contains("____") }) {
+                throw EvalException("SyntaxError: Masih ada slot '____' yang belum diisi! Ketuk Code Chips atau ketik nilainya.")
+            }
             val (stmts, _) = parseBlock(lines, 0, baseIndent = 0)
             executeBlock(stmts, globalScope, functions, stdout, ::tick)
 
@@ -117,6 +120,16 @@ class MiniPythonEvaluator {
             val actual = vars[key]
             if (!valuesMatch(actual, expected)) {
                 return "LogicError: Nilai variabel '$key' diharapkan ${formatPy(expected)}, tetapi hasilnya ${formatPy(actual)}."
+            }
+        }
+        for ((key, allowedList) in rule.allowedVarValues) {
+            if (!vars.containsKey(key)) {
+                return "LogicError: Variabel '$key' belum didefinisikan."
+            }
+            val actual = vars[key]
+            if (allowedList.none { valuesMatch(actual, it) }) {
+                val expectedText = allowedList.joinToString(" atau ") { formatPy(it) }
+                return "LogicError: Nilai variabel '$key' diharapkan $expectedText, tetapi hasilnya ${formatPy(actual)}."
             }
         }
         if (stdout.size < rule.minStdoutLines) {
