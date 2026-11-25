@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
 interface InventoryRepository {
     fun observeInventory(userId: String): Flow<List<OwnedItem>>
     suspend fun equipItem(userId: String, itemId: String): AppResult<Int>
+    suspend fun equipItemToSlot(userId: String, itemId: String, targetSlot: Int): AppResult<String?>
     suspend fun unequipItem(userId: String, itemId: String): AppResult<Unit>
     suspend fun consumeItem(userId: String, itemId: String): AppResult<Unit>
     suspend fun grantLootByHp(userId: String, hpRemaining: Int): OwnedItem?
