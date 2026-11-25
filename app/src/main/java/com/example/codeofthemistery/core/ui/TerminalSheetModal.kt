@@ -1,5 +1,6 @@
 package com.example.codeofthemistery.core.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,8 +9,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Lock
@@ -17,9 +21,9 @@ import androidx.compose.material.icons.rounded.Terminal
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
@@ -34,14 +38,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.codeofthemistery.core.theme.BackgroundPrimary
 import com.example.codeofthemistery.core.theme.BorderMuted
 import com.example.codeofthemistery.core.theme.CyanTerminal
+import com.example.codeofthemistery.core.theme.MonoFontFamily
 import com.example.codeofthemistery.core.theme.PrimaryLavender
 import com.example.codeofthemistery.core.theme.SuccessGreen
 import com.example.codeofthemistery.core.theme.SurfaceCard
+import com.example.codeofthemistery.core.theme.SurfaceElevated
 import com.example.codeofthemistery.core.theme.TextMuted
 import com.example.codeofthemistery.core.theme.TextPrimary
 import com.example.codeofthemistery.core.theme.TextSecondary
@@ -60,7 +68,7 @@ fun TerminalTopBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 14.dp),
+                .padding(horizontal = 20.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -70,12 +78,33 @@ fun TerminalTopBar(
                 color = PrimaryLavender
             )
             if (showSheetAction) {
-                IconButton(onClick = { showTerminalSheet = true }) {
-                    Icon(
-                        imageVector = Icons.Rounded.Terminal,
-                        contentDescription = "Skill Tree & Clue Log",
-                        tint = PrimaryLavender
-                    )
+                Surface(
+                    onClick = { showTerminalSheet = true },
+                    shape = RoundedCornerShape(8.dp),
+                    color = SurfaceElevated,
+                    border = BorderStroke(1.dp, PrimaryLavender.copy(alpha = 0.55f))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Terminal,
+                            contentDescription = "Skill Tree & Clue Log",
+                            tint = PrimaryLavender,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "Codex",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontFamily = MonoFontFamily,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 11.sp
+                            ),
+                            color = PrimaryLavender
+                        )
+                    }
                 }
             }
         }
