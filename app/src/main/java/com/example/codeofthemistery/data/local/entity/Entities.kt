@@ -30,7 +30,8 @@ data class ChapterProgressEntity(
     val status: String, // LOCKED, UNLOCKED, COMPLETED
     val bestHpRemaining: Int,
     val questionsAnswered: Int,
-    val updatedAt: Long
+    val updatedAt: Long,
+    val lastAlignmentChoice: String? = null
 )
 
 @Entity(tableName = "items")
