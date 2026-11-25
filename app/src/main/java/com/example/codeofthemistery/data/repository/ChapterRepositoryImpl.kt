@@ -7,6 +7,8 @@ import com.example.codeofthemistery.data.local.datastore.SessionPreferences
 import com.example.codeofthemistery.data.local.entity.ChapterProgressEntity
 import com.example.codeofthemistery.data.local.seed.AppSeedData
 import com.example.codeofthemistery.domain.mechanics.LevelCalculator
+import com.example.codeofthemistery.domain.model.AlignmentChoice
+import com.example.codeofthemistery.domain.model.AlignmentSummary
 import com.example.codeofthemistery.domain.model.ChapterScript
 import com.example.codeofthemistery.domain.model.ChapterStatus
 import com.example.codeofthemistery.domain.model.ChapterSummary
@@ -30,6 +32,7 @@ class ChapterRepositoryImpl(
                 val row = byId[meta.id]
                 val status = row?.status?.let { runCatching { ChapterStatus.valueOf(it) }.getOrNull() }
                     ?: if (meta.id == 1) ChapterStatus.UNLOCKED else ChapterStatus.LOCKED
+                val alignment = row?.lastAlignmentChoice?.let { runCatching { AlignmentChoice.valueOf(it) }.getOrNull() }
                 ChapterSummary(
                     id = meta.id,
                     title = meta.title,
@@ -40,9 +43,17 @@ class ChapterRepositoryImpl(
                     rewardXp = meta.rewardXp,
                     rewardPoints = meta.rewardPoints,
                     bestHpRemaining = row?.bestHpRemaining ?: 0,
-                    questionsAnswered = row?.questionsAnswered ?: 0
+                    questionsAnswered = row?.questionsAnswered ?: 0,
+                    lastAlignmentChoice = alignment
                 )
             }
+        }
+
+    override fun observeAlignmentSummary(userId: String): Flow<AlignmentSummary> =
+        chapterDao.observeProgress(userId).map { rows ->
+            val patch = rows.count { it.lastAlignmentChoice == AlignmentChoice.PATCH.name }
+            val purge = rows.count { it.lastAlignmentChoice == AlignmentChoice.PURGE.name }
+            AlignmentSummary(patchCount = patch, purgeCount = purge)
         }
 
     override fun getChapterScript(chapterId: Int): ChapterScript = AppSeedData.getChapterScript(chapterId)
@@ -53,7 +64,8 @@ class ChapterRepositoryImpl(
         hpRemaining: Int,
         questionsAnswered: Int,
         earnedXp: Int,
-        earnedPoints: Int
+        earnedPoints: Int,
+        alignmentChoice: AlignmentChoice?
     ) {
         val now = System.currentTimeMillis()
         val current = chapterDao.getChapterProgress(userId, chapterId)
@@ -64,7 +76,8 @@ class ChapterRepositoryImpl(
                 status = ChapterStatus.COMPLETED.name,
                 bestHpRemaining = max(current?.bestHpRemaining ?: 0, hpRemaining),
                 questionsAnswered = max(current?.questionsAnswered ?: 0, questionsAnswered),
-                updatedAt = now
+                updatedAt = now,
+                lastAlignmentChoice = alignmentChoice?.name ?: current?.lastAlignmentChoice
             )
         )
 
