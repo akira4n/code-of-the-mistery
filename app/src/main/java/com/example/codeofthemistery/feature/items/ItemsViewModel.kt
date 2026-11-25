@@ -20,6 +20,7 @@ data class ItemsUiState(
     val userId: String? = null,
     val equippedSlots: List<OwnedItem?> = listOf(null, null, null),
     val allItems: List<OwnedItem> = emptyList(),
+    val pendingSwapItem: OwnedItem? = null,
     val statusMessage: String? = null
 )
 
@@ -29,6 +30,7 @@ class ItemsViewModel(
 ) : ViewModel() {
 
     private val feedbackFlow = MutableStateFlow<String?>(null)
+    private val pendingSwapItemFlow = MutableStateFlow<OwnedItem?>(null)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val uiState: StateFlow<ItemsUiState> = authRepository.observeActiveUser()
@@ -36,12 +38,17 @@ class ItemsViewModel(
             if (user == null) {
                 flowOf(ItemsUiState())
             } else {
-                combine(inventoryRepository.observeInventory(user.id), feedbackFlow) { items, msg ->
+                combine(
+                    inventoryRepository.observeInventory(user.id),
+                    pendingSwapItemFlow,
+                    feedbackFlow
+                ) { items, pendingSwap, msg ->
                     val slots = listOf(1, 2, 3).map { slot -> items.find { it.equippedSlot == slot } }
                     ItemsUiState(
                         userId = user.id,
                         equippedSlots = slots,
                         allItems = items,
+                        pendingSwapItem = pendingSwap,
                         statusMessage = msg
                     )
                 }
@@ -53,6 +60,10 @@ class ItemsViewModel(
         feedbackFlow.value = null
     }
 
+    fun dismissSwapDialog() {
+        pendingSwapItemFlow.value = null
+    }
+
     fun toggleEquip(item: OwnedItem) {
         val uid = uiState.value.userId ?: return
         viewModelScope.launch {
@@ -61,11 +72,32 @@ class ItemsViewModel(
                     is AppResult.Success -> feedbackFlow.value = "${item.name} dilepas dari slot."
                     is AppResult.Error -> feedbackFlow.value = res.message
                 }
+            } else if (uiState.value.equippedSlots.none { it == null }) {
+                pendingSwapItemFlow.value = item
             } else {
                 when (val res = inventoryRepository.equipItem(uid, item.itemId)) {
                     is AppResult.Success -> feedbackFlow.value = "${item.name} dipasang di Slot ${res.data}."
                     is AppResult.Error -> feedbackFlow.value = res.message
                 }
+            }
+        }
+    }
+
+    fun confirmSwapSlot(targetSlot: Int) {
+        val uid = uiState.value.userId ?: return
+        val newItem = pendingSwapItemFlow.value ?: return
+        viewModelScope.launch {
+            pendingSwapItemFlow.value = null
+            when (val res = inventoryRepository.equipItemToSlot(uid, newItem.itemId, targetSlot)) {
+                is AppResult.Success -> {
+                    val replacedName = res.data
+                    feedbackFlow.value = if (replacedName != null) {
+                        "${newItem.name} dipasang di Slot $targetSlot (menggantikan $replacedName)."
+                    } else {
+                        "${newItem.name} dipasang di Slot $targetSlot."
+                    }
+                }
+                is AppResult.Error -> feedbackFlow.value = res.message
             }
         }
     }
