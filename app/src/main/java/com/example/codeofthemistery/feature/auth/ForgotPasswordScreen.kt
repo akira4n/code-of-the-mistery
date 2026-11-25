@@ -76,7 +76,7 @@ fun ForgotPasswordScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
         Text(
-            text = "Code of the Mistery",
+            text = "Code of the Mystery",
             style = MaterialTheme.typography.titleLarge,
             color = PrimaryLavender
         )
@@ -129,7 +129,7 @@ fun ForgotPasswordScreen(
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            text = "Dikirim ke ${state.resetEmail} (mode offline UAS)",
+                            text = "Kode verifikasi sementara untuk ${state.resetEmail}",
                             color = TextMuted,
                             style = MaterialTheme.typography.bodySmall
                         )
